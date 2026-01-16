@@ -1,0 +1,23 @@
+From b2c3d4e5f678901234567890abcdef1234567890 Mon Sep 17 00:00:00 2001
+From: Dva.11 <dva11@example.com>
+Date: Wed, 15 Jan 2026 00:00:00 +0000
+Subject: [PATCH 02/03] mm: Tune memory management for performance
+
+---
+ mm/Makefile | 5 +++++
+ 1 file changed, 5 insertions(+)
+
+diff --git a/mm/Makefile b/mm/Makefile
+index 89abcde..fedcba0 100644
+--- a/mm/Makefile
++++ b/mm/Makefile
+@@
++# Memory management tweaks for performance
++KBUILD_CFLAGS += -O3
++
++# Default VM tunables
++CONFIG_TRANSPARENT_HUGEPAGE_DEFAULT := "always"
++CONFIG_VM_SWAPPINESS := 10
++CONFIG_PAGE_CLUSTER := 8
+--
+2.47.2
