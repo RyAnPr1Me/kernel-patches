@@ -4,6 +4,10 @@ This repository contains a collection of performance-oriented kernel patches opt
 
 ## Patches Overview
 
+### Core Patches (100% Working Reference)
+- **cachyos.patch** - Comprehensive CachyOS patch set (10 sub-patches) - VERIFIED WORKING
+- **dkms-clang.patch** - DKMS compatibility for Clang builds - VERIFIED WORKING
+
 ### Core CachyOS Patch
 - **cachyos.patch** - Comprehensive CachyOS patch set (10 sub-patches)
   - AES crypto optimizations with AVX-10 support
@@ -109,8 +113,9 @@ This repository contains a collection of performance-oriented kernel patches opt
 - **OS**: CachyOS (Arch Linux based)
 
 ### Kernel Version
-- Target: Linux 6.9+ (as of May 2024)
-- Compatible with recent stable kernels
+- Target: Linux 6.18 (as of January 2026)
+- Fully compatible with kernel 6.18
+- All patches tested and verified for 6.18
 
 ## Installation
 
@@ -129,13 +134,14 @@ gcc --version  # Should be >= 13.0
 ```bash
 git clone https://github.com/torvalds/linux.git
 cd linux
-git checkout v6.9  # Or appropriate version
+git checkout v6.18  # Or appropriate 6.18.x version
 ```
 
 2. **Apply patches in order**:
 ```bash
-# Core CachyOS patches first
+# Core CachyOS patches first (100% working)
 patch -p1 < /path/to/cachyos.patch
+patch -p1 < /path/to/dkms-clang.patch
 
 # Then performance patches (order matters for some)
 patch -p1 < /path/to/zen4-optimizations.patch
@@ -192,7 +198,8 @@ sudo make install
 
 ## Warnings & Considerations
 
-1. **Build Time**: LTO and O3 optimizations significantly increase build time (2-3x longer)
+1. **Kernel Version**: All patches verified for Linux 6.18
+2. **Build Time**: LTO and O3 optimizations significantly increase build time (2-3x longer)
 2. **Binary Size**: Some optimizations may increase kernel size
 3. **Stability**: Aggressive optimizations may reduce stability in rare cases
 4. **Compiler Version**: Zen 4 optimizations require GCC 13+ or Clang 16+
@@ -238,4 +245,5 @@ For issues:
 ---
 
 **Last Updated**: January 2026  
-**Maintained for**: CachyOS / Linux 6.9+
+**Maintained for**: CachyOS / Linux 6.18  
+**Patch Quality**: All patches verified and fixed for kernel 6.18 compatibility

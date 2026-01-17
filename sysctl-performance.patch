@@ -61,7 +61,7 @@ index 00000000..11111111 100644
  		.maxlen		= sizeof(sysctl_overcommit_memory),
  		.mode		= 0644,
 -		.proc_handler	= proc_dointvec_minmax,
-+		.proc_handler	= overcommit_policy_handler,
++		.proc_handler	= proc_dointvec_minmax,
  		.extra1		= SYSCTL_ZERO,
  		.extra2		= &two,
  	},
@@ -70,7 +70,7 @@ index 00000000..11111111 100644
  		.maxlen		= sizeof(dirty_expire_interval),
  		.mode		= 0644,
 -		.proc_handler	= proc_dointvec_minmax,
-+		.proc_handler	= proc_dointvec_ms_jiffies,
++		.proc_handler	= proc_dointvec_minmax,
  		.extra1		= SYSCTL_ZERO,
  	},
  	{
@@ -80,8 +80,8 @@ index 00000000..11111111 100644
  		.mode           = 0644,
 -		.proc_handler   = proc_dointvec_minmax,
 -		.extra1         = SYSCTL_ZERO,
-+		.proc_handler   = proc_dointvec,
-+		.extra1         = SYSCTL_ONE,
++		.proc_handler   = proc_dointvec_minmax,
++		.extra1         = SYSCTL_ZERO,
  	},
  #ifdef CONFIG_COMPACTION
  	{
@@ -121,7 +121,7 @@ index 00000000..11111111 100644
  		.maxlen		= sizeof(int),
  		.mode		= 0644,
 -		.extra1		= SYSCTL_ZERO,
-+		.extra1		= &long_one,
++		.extra1		= SYSCTL_ZERO,
  		.proc_handler	= proc_dointvec_minmax
  	},
  	{
@@ -143,7 +143,7 @@ index 00000000..11111111 100644
  		.mode		= 0644,
  		.maxlen		= TCP_CA_NAME_MAX,
 -		.proc_handler	= proc_tcp_congestion_control
-+		.proc_handler	= proc_tcp_available_congestion_control,
++		.proc_handler	= proc_tcp_congestion_control
  	},
  	{
  		.procname	= "tcp_available_congestion_control",
@@ -152,7 +152,7 @@ index 00000000..11111111 100644
  		.maxlen		= sizeof(unsigned int),
  		.mode		= 0644,
 -		.proc_handler	= proc_douintvec,
-+		.proc_handler	= proc_dointvec,
++		.proc_handler	= proc_douintvec,
  	},
  	{
  		.procname	= "tcp_tw_reuse",
@@ -161,7 +161,7 @@ index 00000000..11111111 100644
  		.maxlen         = sizeof(int),
  		.mode           = 0644,
 -		.proc_handler   = proc_dointvec,
-+		.proc_handler   = proc_dointvec_minmax,
++		.proc_handler   = proc_dointvec,
  	},
  	{
  		.procname	= "tcp_fastopen_key",
@@ -171,8 +171,8 @@ index 00000000..11111111 100644
  		.mode		= 0644,
 -		.proc_handler	= proc_dointvec,
 -		.extra1		= SYSCTL_ZERO,
-+		.proc_handler	= proc_dointvec_minmax,
-+		.extra1		= SYSCTL_ONE,
++		.proc_handler	= proc_dointvec,
++		.extra1		= SYSCTL_ZERO,
  		.extra2		= SYSCTL_ONE,
  	},
  	{

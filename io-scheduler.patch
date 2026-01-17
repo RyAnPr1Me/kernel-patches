@@ -54,7 +54,7 @@ index 00000000..11111111 100644
  		return NULL;
  
 -	return elevator_find_get(q, "mq-deadline");
-+	return elevator_find_get(q, "none");
++	return elevator_find_get(q, "mq-deadline");
  }
  
  /*

@@ -37,8 +37,7 @@ index 00000000..11111111 100644
  }
  
  /* Manage refcounts on socket close. */
--void tcp_cleanup_congestion_control(struct sock *sk)
-+void tcp_cleanup_congestion_control(struct sock *sk, bool from_bh)
+ void tcp_cleanup_congestion_control(struct sock *sk)
  {
  	struct inet_connection_sock *icsk = inet_csk(sk);
  

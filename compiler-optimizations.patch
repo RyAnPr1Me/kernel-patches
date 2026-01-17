@@ -29,8 +29,8 @@ index 00000000..11111111 100644
  KBUILD_CFLAGS	+= $(call cc-disable-warning, format-truncation)
  
 +ifdef CONFIG_CC_OPTIMIZE_FOR_PERFORMANCE
-+# Additional performance optimizations
-+KBUILD_CFLAGS += -O3
++# Additional performance optimizations beyond base -O2
++KBUILD_CFLAGS += $(call cc-option,-O3)
 +
 +# Loop optimizations
 +KBUILD_CFLAGS += $(call cc-option,-funroll-loops)
@@ -48,9 +48,6 @@ index 00000000..11111111 100644
 +KBUILD_LDFLAGS += -Wl,--gc-sections
 +endif
 +
- ifdef CONFIG_CC_OPTIMIZE_FOR_PERFORMANCE
- KBUILD_CFLAGS += -O2
- KBUILD_RUSTFLAGS += -Copt-level=2
 diff --git a/init/Kconfig b/init/Kconfig
 index 00000000..11111111 100644
 --- a/init/Kconfig

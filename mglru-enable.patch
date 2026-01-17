@@ -29,12 +29,13 @@ index 00000000..11111111 100644
  config LRU_GEN
  	bool "Multi-Gen LRU"
 -	depends on MMU
++	depends on MMU
 +	default y if X86_64
  	# make sure folio->flags has enough spare bits
  	depends on 64BIT || !SPARSEMEM || SPARSEMEM_VMEMMAP
  	help
 diff --git a/mm/vmscan.c b/mm/vmscan.c
-index 11111111..22222222 100644
+index 00000000..11111111 100644
 --- a/mm/vmscan.c
 +++ b/mm/vmscan.c
 @@ -4517,8 +4517,8 @@ static bool should_run_aging(struct lruvec *lruvec, unsigned long max_seq,

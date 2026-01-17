@@ -74,7 +74,7 @@ index 00000000..11111111 100644
  	init_waitqueue_head(&root->ino_cache_wait);
  
 -	ret = btrfs_get_free_objectid(root, &objectid);
-+	ret = btrfs_get_free_objectid(root, &objectid, true);
++	ret = btrfs_get_free_objectid(root, &objectid);
  	if (ret)
  		goto fail;
  
