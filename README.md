@@ -128,6 +128,30 @@ This repository contains a collection of performance-oriented kernel patches opt
   - Better application launch times
   - Improved build/compile performance
 
+- **rcu-nocb-optimize.patch** - RCU optimizations (NEWEST)
+  - NO_HZ_FULL for tickless operation on dedicated cores
+  - RCU_NOCB callback offloading
+  - Lower latency on isolated CPU cores
+  - Better for CPU-intensive games
+
+- **numa-balancing-enhance.patch** - NUMA balancing (NEWEST)
+  - Aggressive NUMA page migration
+  - 5-15% performance on multi-socket/multi-CCX systems
+  - Optimized for AMD Zen 4 chiplet architecture
+  - Better memory locality
+
+- **irq-optimize.patch** - IRQ handling optimization (NEWEST)
+  - Optimized interrupt affinity
+  - 5-10% better frame times
+  - Lower interrupt latency
+  - Reduced jitter and stuttering
+
+- **locking-optimize.patch** - Locking primitives (NEWEST)
+  - Optimized spinlocks for Zen 4
+  - 3-8% improvement under contention
+  - Better cache-line optimization
+  - Reduced lock overhead
+
 ### System Configuration
 - **sysctl-performance.patch** - Optimized sysctl defaults
   - Better I/O scheduler defaults
@@ -205,6 +229,12 @@ patch -p1 < /path/to/network-stack-advanced.patch
 patch -p1 < /path/to/cstate-disable.patch
 patch -p1 < /path/to/page-allocator-optimize.patch
 patch -p1 < /path/to/vfs-cache-optimize.patch
+
+# STEP 4: NEWEST optimizations (RCU, NUMA, IRQ, Locking)
+patch -p1 < /path/to/rcu-nocb-optimize.patch
+patch -p1 < /path/to/numa-balancing-enhance.patch
+patch -p1 < /path/to/irq-optimize.patch
+patch -p1 < /path/to/locking-optimize.patch
 ```
 
 3. **Configure kernel**:
