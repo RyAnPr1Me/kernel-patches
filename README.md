@@ -2,6 +2,14 @@
 
 This repository contains a collection of performance-oriented kernel patches optimized for CachyOS and modern hardware, particularly AMD Zen 4 processors.
 
+## ⚠️ IMPORTANT: Patch Conflicts
+
+**Not all patches can be applied together!** Some patches modify the same code and will conflict.
+
+📖 **READ FIRST**: [PATCH_CONFLICTS.md](PATCH_CONFLICTS.md) - Comprehensive conflict documentation
+
+🔧 **VALIDATE**: Use `./validate-patches.sh --dry-run` to check compatibility before applying patches
+
 ## Patches Overview
 
 ### Core Patches (100% Working Reference)
@@ -65,10 +73,12 @@ This repository contains a collection of performance-oriented kernel patches opt
   - NUMA balancing improvements
 
 ### Network Stack
-- **tcp-bbr2.patch** - BBR2 TCP congestion control
-  - BBR2 as default (instead of CUBIC)
+- **tcp-bbr3.patch** - BBR3 TCP congestion control
+  - ⚠️ **CONFLICT**: Cannot be used with cachyos.patch (which includes BBR3)
+  - BBR3 as default (instead of CUBIC)
   - High throughput, low latency
   - Better network path modeling
+  - **Note**: Only apply if NOT using cachyos.patch
 
 ### Storage & I/O
 - **io-scheduler.patch** - I/O scheduler optimizations
@@ -194,51 +204,72 @@ gcc --version  # Should be >= 13.0
 
 ### Applying Patches
 
-1. **Clone Linux kernel source**:
+⚠️ **CRITICAL**: Not all patches can be applied together! See [PATCH_CONFLICTS.md](PATCH_CONFLICTS.md) for details.
+
+1. **Validate patches first**:
+```bash
+cd /path/to/kernel-patches
+./validate-patches.sh --dry-run
+```
+
+2. **Clone Linux kernel source**:
 ```bash
 git clone https://github.com/torvalds/linux.git
 cd linux
 git checkout v6.18  # Or appropriate 6.18.x version
 ```
 
-2. **Apply patches in order** (IMPORTANT - order matters!):
+3. **Apply patches in recommended order** (safe combination):
 ```bash
-# STEP 1: Core CachyOS patches MUST be applied FIRST
-patch -p1 < /path/to/cachyos.patch
+# STEP 1: Core CachyOS patches (MUST be applied FIRST)
+patch -p1 < /path/to/cachyos.patch  # Includes BBR3, AMD P-State, etc.
 patch -p1 < /path/to/dkms-clang.patch
 
-# STEP 2: Architecture and compiler optimizations
-# Note: These complement cachyos but may modify overlapping files
+# STEP 2: Architecture optimizations (complementary)
 patch -p1 < /path/to/zen4-optimizations.patch
 patch -p1 < /path/to/zen4-cache-optimize.patch
 patch -p1 < /path/to/zen4-avx512-optimize.patch
 patch -p1 < /path/to/zen4-ddr5-optimize.patch
 patch -p1 < /path/to/compiler-optimizations.patch
-patch -p1 < /path/to/cpufreq-performance.patch
-patch -p1 < /path/to/mm-performance.patch
+
+# STEP 3: Memory management (non-conflicting)
 patch -p1 < /path/to/mglru-enable.patch
 patch -p1 < /path/to/zswap-performance.patch
-patch -p1 < /path/to/scheduler-performance.patch
-patch -p1 < /path/to/tcp-bbr2.patch
+patch -p1 < /path/to/page-allocator-optimize.patch
+
+# STEP 4: Latency optimizations
+patch -p1 < /path/to/cstate-disable.patch
+patch -p1 < /path/to/rcu-nocb-optimize.patch
+
+# STEP 5: Network (minimal to avoid conflicts)
+patch -p1 < /path/to/cloudflare.patch
+
+# STEP 6: Storage and I/O
 patch -p1 < /path/to/io-scheduler.patch
 patch -p1 < /path/to/filesystem-performance.patch
-patch -p1 < /path/to/futex-performance.patch
-patch -p1 < /path/to/sysctl-performance.patch
-
-# STEP 3: NEW high-impact optimizations (unique, no conflicts)
-patch -p1 < /path/to/thp-optimization.patch
-patch -p1 < /path/to/preempt-desktop.patch
-patch -p1 < /path/to/network-stack-advanced.patch
-patch -p1 < /path/to/cstate-disable.patch
-patch -p1 < /path/to/page-allocator-optimize.patch
 patch -p1 < /path/to/vfs-cache-optimize.patch
 
-# STEP 4: NEWEST optimizations (RCU, NUMA, IRQ, Locking)
-patch -p1 < /path/to/rcu-nocb-optimize.patch
-patch -p1 < /path/to/numa-balancing-enhance.patch
+# STEP 7: IRQ and locking
 patch -p1 < /path/to/irq-optimize.patch
 patch -p1 < /path/to/locking-optimize.patch
+
+# STEP 8: System optimizations
+patch -p1 < /path/to/futex-performance.patch
+patch -p1 < /path/to/sysctl-performance.patch
 ```
+
+**DO NOT APPLY** (conflicts with cachyos.patch):
+- ❌ tcp-bbr3.patch (cachyos already includes BBR3)
+- ❌ cpufreq-performance.patch (conflicts with cachyos AMD P-State)
+- ❌ mm-performance.patch (conflicts with cachyos memory management)
+- ❌ scheduler-performance.patch (conflicts with cachyos scheduler)
+- ❌ preempt-desktop.patch (conflicts with cachyos timer config)
+- ❌ thp-optimization.patch (conflicts with cachyos THP settings)
+- ❌ network-stack-advanced.patch (may conflict with cachyos TCP stack)
+
+4. **Alternative: Manual conflict resolution**
+
+If you need conflicting patches, you must manually merge them. See [PATCH_CONFLICTS.md](PATCH_CONFLICTS.md) for guidance.
 
 ## Zen 4-Specific Performance Features
 
@@ -317,26 +348,32 @@ sudo make install
 
 ## Warnings & Considerations
 
-1. **Kernel Version**: All patches verified for Linux 6.18
-2. **Patch Order**: cachyos.patch MUST be applied first - other patches depend on it
-3. **File Conflicts**: Multiple patches modify mm/Kconfig, mm/vmscan.c, and network files
-4. **Build Time**: LTO and O3 optimizations significantly increase build time (2-3x longer)
-5. **Binary Size**: Some optimizations may increase kernel size
-6. **Stability**: Aggressive optimizations may reduce stability in rare cases
-7. **Compiler Version**: Zen 4 optimizations require GCC 13+ or Clang 16+
-8. **Memory Usage**: Some optimizations trade memory for speed
-9. **Power Consumption**: C-state disabling increases idle power (desktop/gaming optimized)
-10. **Preemption**: PREEMPT model may slightly reduce throughput for server workloads
+### Critical Warnings
 
-### Patch Conflicts Warning
+1. **Patch Conflicts**: ⚠️ **NOT ALL PATCHES CAN BE APPLIED TOGETHER!**
+   - See [PATCH_CONFLICTS.md](PATCH_CONFLICTS.md) for complete conflict documentation
+   - Use `./validate-patches.sh --dry-run` to check compatibility
+   - cachyos.patch conflicts with 8 other patches
+   - tcp-bbr3.patch CANNOT be used with cachyos.patch (BBR3 already included)
 
-**Important**: The following files are modified by multiple patches:
-- `mm/Kconfig`: cachyos, mglru-enable, thp-optimization, zswap-performance
-- `mm/vmscan.c`: cachyos, mglru-enable, mm-performance
-- `net/ipv4/sysctl_net_ipv4.c`: cloudflare, network-stack-advanced, sysctl-performance
-- `kernel/sched/fair.c`: cachyos, scheduler-performance (different tunables)
+2. **Kernel Version**: All patches verified for Linux 6.18
 
-Patches modify different sections of these files and should apply cleanly if applied in the specified order. If a patch fails, check the context and adjust manually.
+3. **Patch Order**: cachyos.patch MUST be applied first when used
+
+4. **File Conflicts**: 34 files are modified by multiple patches
+   - High-risk files: `kernel/sched/fair.c`, `mm/vmscan.c`, `net/ipv4/tcp_bbr.c`
+   - See conflict documentation for details
+
+### Technical Considerations
+
+5. **Build Time**: LTO and O3 optimizations significantly increase build time (2-3x longer)
+6. **Binary Size**: Some optimizations may increase kernel size
+7. **Stability**: Aggressive optimizations may reduce stability in rare cases
+8. **Compiler Version**: Zen 4 optimizations require GCC 13+ or Clang 16+
+9. **Memory Usage**: Some optimizations trade memory for speed
+10. **Power Consumption**: C-state disabling increases idle power (desktop/gaming optimized)
+11. **Preemption**: PREEMPT model may slightly reduce throughput for server workloads
+
 
 ## Benchmarking
 
