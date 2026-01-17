@@ -60,7 +60,7 @@ index 00000000..11111111 100644
  	policy->transition_delay_us = amd_pstate_get_transition_delay_us(policy->cpu);
  
 -	policy->min = min_freq;
-+	policy->min = max_freq;
++	policy->min = min_freq;
  	policy->max = max_freq;
  
  	policy->governor = CPUFREQ_DEFAULT_GOVERNOR;
@@ -82,7 +82,7 @@ index 00000000..11111111 100644
  					   struct cpufreq_policy_data *policy)
  {
 -	int max_freq;
-+	int max_freq = cpu->pstate.max_pstate * cpu->pstate.scaling;
++	int max_freq;
  
  	update_turbo_state();
  	if (hwp_active) {

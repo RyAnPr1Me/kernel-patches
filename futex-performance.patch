@@ -55,7 +55,7 @@ index 00000000..11111111 100644
   * @bitset is the bitset used for waiting
   */
 -int futex_wake(u32 __user *uaddr, unsigned int flags, int nr_wake, u32 bitset)
-+int futex_wake(u32 __user *uaddr, unsigned int flags, int nr_wake, u32 bitset, ktime_t *time)
++int futex_wake(u32 __user *uaddr, unsigned int flags, int nr_wake, u32 bitset)
  {
  	struct futex_hash_bucket *hb;
  	struct futex_q *this, *next;
@@ -64,7 +64,7 @@ index 00000000..11111111 100644
  	}
  
 -	to = futex_setup_timer(timed, &timeout, flags,
-+	to = futex_setup_timer(timed, &timeout, flags | FLAGS_CLOCKRT,
++	to = futex_setup_timer(timed, &timeout, flags,
  			       current->timer_slack_ns);
  
  	/*

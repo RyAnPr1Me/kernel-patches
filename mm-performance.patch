@@ -36,8 +36,7 @@ index 00000000..11111111 100644
  }
  #endif
  
--static void kswapd_age_node(struct pglist_data *pgdat, struct scan_control *sc)
-+static void kswapd_age_node(struct pglist_data *pgdat, struct scan_control *sc, bool aging_ok)
+ static void kswapd_age_node(struct pglist_data *pgdat, struct scan_control *sc)
  {
  	struct mem_cgroup *memcg;
  	struct lruvec *target_lruvec;
@@ -58,8 +57,8 @@ index 00000000..11111111 100644
  static int vm_lowmem_reserve_ratio[MAX_NR_ZONES] = {
  #ifdef CONFIG_ZONE_DMA
  	[ZONE_DMA] = 256,
--#ifdef CONFIG_ZONE_DMA32
 +#endif
++#ifdef CONFIG_ZONE_DMA32
  	[ZONE_DMA32] = 256,
  #endif
  	[ZONE_NORMAL] = 32,

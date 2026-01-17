@@ -75,7 +75,7 @@ index 00000000..11111111 100644
 -static const struct kernel_param_ops zswap_compressor_param_ops = {
 -	.set =		zswap_compressor_param_set,
 +static struct kernel_param_ops zswap_compressor_param_ops = {
-+	.set =		zswap_compressor_param_set_nowarn,
++	.set =		zswap_compressor_param_set,
  	.get =		param_get_charp,
  	.free =		param_free_charp,
  };
