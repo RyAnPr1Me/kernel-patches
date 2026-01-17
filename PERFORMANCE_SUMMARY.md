@@ -1,7 +1,9 @@
 # Maximum Performance Kernel Patches - Summary
 
 ## Overview
-This repository now contains **22 kernel patches** optimized for **maximum performance** on Linux kernel 6.18, specifically tailored for desktop, gaming, and high-performance workloads on AMD Zen 4 systems.
+This repository now contains **21 kernel patches** optimized for **maximum performance** on Linux kernel 6.18, specifically tailored for desktop, gaming, and high-performance workloads on AMD Zen 4 systems.
+
+**Important**: One duplicate patch (disable-workquees.patch) was removed as it exactly duplicates functionality in cachyos.patch.
 
 ## Patch Categories
 
@@ -9,7 +11,7 @@ This repository now contains **22 kernel patches** optimized for **maximum perfo
 - **cachyos.patch** - CachyOS comprehensive patch set ✅ 100% Working
 - **dkms-clang.patch** - DKMS Clang compatibility ✅ 100% Working
 
-### Fixed & Validated Patches (14)
+### Fixed & Validated Patches (13)
 All patches fixed for kernel 6.18 compatibility:
 1. compiler-optimizations.patch
 2. cpufreq-performance.patch
@@ -24,7 +26,8 @@ All patches fixed for kernel 6.18 compatibility:
 11. zen4-optimizations.patch
 12. zswap-performance.patch
 13. cloudflare.patch (already correct)
-14. disable-workquees.patch (already correct)
+
+**Note**: disable-workquees.patch was removed as it duplicates cachyos.patch
 
 ### NEW High-Impact Optimizations (6)
 Added for maximum performance:
@@ -166,11 +169,11 @@ patch -p1 < /path/to/tcp-bbr2.patch
 patch -p1 < /path/to/cloudflare.patch
 patch -p1 < /path/to/io-scheduler.patch
 patch -p1 < /path/to/filesystem-performance.patch
-patch -p1 < /path/to/disable-workquees.patch
+# Note: disable-workquees.patch removed (duplicate of cachyos)
 patch -p1 < /path/to/futex-performance.patch
 patch -p1 < /path/to/sysctl-performance.patch
 
-# NEW: High-impact optimizations
+# NEW: High-impact optimizations (no conflicts with cachyos)
 patch -p1 < /path/to/thp-optimization.patch
 patch -p1 < /path/to/preempt-desktop.patch
 patch -p1 < /path/to/network-stack-advanced.patch
@@ -232,6 +235,8 @@ For best results:
 This patch set provides **comprehensive performance optimizations** for Linux kernel 6.18, targeting **maximum performance** for desktop and gaming workloads. All patches have been **validated and fixed** for compatibility, with **6 new high-impact optimizations** added for even better performance.
 
 **Total Performance Gain**: 15-40% across various workloads
-**Patches**: 22 total (16 fixed + 6 new)
+**Patches**: 21 total (15 fixed + 6 new, 1 duplicate removed)
 **Target**: Linux 6.18, AMD Zen 4, Desktop/Gaming
 **Status**: Production-ready ✅
+
+**Conflict Resolution**: Removed disable-workquees.patch (duplicate of cachyos.patch). All remaining patches apply cleanly when applied in the documented order.

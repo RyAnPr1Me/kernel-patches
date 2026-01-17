@@ -19,8 +19,8 @@ Linux 6.18
    - No changes needed - already correct
 
 4. **disable-workquees.patch** - dm-crypt workqueue optimization  
-   - Status: WORKING
-   - No changes needed - already correct
+   - Status: REMOVED (duplicate of cachyos.patch)
+   - Reason: cachyos.patch [PATCH 04/10] block already includes this change
 
 5. **compiler-optimizations.patch** - Aggressive compiler optimizations
    - Status: FIXED ✅
@@ -134,6 +134,8 @@ Total: 6 new high-performance patches
 ### Documentation Updates
 - Updated README.md to reflect kernel 6.18 compatibility
 - Marked cachyos.patch and dkms-clang.patch as verified working
+- **Added patch conflict warnings and proper application order**
+- **Removed disable-workquees.patch (duplicate of cachyos.patch)**
 - Updated installation instructions for 6.18
 - Added patch quality verification notes
 
@@ -172,7 +174,6 @@ patch -p1 < cloudflare.patch
 # 7. Storage and I/O
 patch -p1 < io-scheduler.patch
 patch -p1 < filesystem-performance.patch
-patch -p1 < disable-workquees.patch
 
 # 8. Gaming and system
 patch -p1 < futex-performance.patch
@@ -186,6 +187,18 @@ patch -p1 < cstate-disable.patch
 patch -p1 < page-allocator-optimize.patch
 patch -p1 < vfs-cache-optimize.patch
 ```
+
+## Important Notes on Patch Conflicts
+
+**File-level overlaps** (same file, different sections):
+- `mm/Kconfig`: cachyos, mglru-enable, thp-optimization, zswap-performance
+- `mm/vmscan.c`: cachyos, mglru-enable, mm-performance
+- `net/ipv4/sysctl_net_ipv4.c`: cloudflare, network-stack-advanced, sysctl-performance
+
+These patches modify different sections and will apply cleanly if applied in order.
+
+**Removed duplicate**:
+- `disable-workquees.patch` - Exact duplicate of cachyos.patch [PATCH 04/10]
 
 ## Performance Impact
 

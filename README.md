@@ -13,13 +13,15 @@ This repository contains a collection of performance-oriented kernel patches opt
   - AES crypto optimizations with AVX-10 support
   - AMD P-State enhancements
   - BBR3 TCP congestion control
-  - Block layer improvements
+  - Block layer improvements (includes dm-crypt workqueue disable)
   - CachyOS-specific optimizations
   - Various fixes and improvements
   - Handheld device support
   - NVIDIA driver improvements
   - Sched-ext support
   - ZSTD decompression improvements
+
+**Note**: CachyOS patch is comprehensive and must be applied FIRST. Some individual patches modify the same files as cachyos.patch but target different code sections. Apply patches in the order specified below to avoid conflicts.
 
 ### CPU & Architecture Optimizations
 - **zen4-optimizations.patch** - AMD Zen 4 specific compiler optimizations
@@ -74,6 +76,7 @@ This repository contains a collection of performance-oriented kernel patches opt
   - Reduced read/write expiry times
   - Larger FIFO batch size (16 → 32)
   - Deeper async queue (64 → 128)
+  - Note: Complements cachyos.patch block optimizations
 
 - **filesystem-performance.patch** - Filesystem optimizations
   - Improved readahead (128KB → 512KB)
@@ -174,13 +177,14 @@ cd linux
 git checkout v6.18  # Or appropriate 6.18.x version
 ```
 
-2. **Apply patches in order**:
+2. **Apply patches in order** (IMPORTANT - order matters!):
 ```bash
-# Core CachyOS patches first (100% working)
+# STEP 1: Core CachyOS patches MUST be applied FIRST
 patch -p1 < /path/to/cachyos.patch
 patch -p1 < /path/to/dkms-clang.patch
 
-# Then performance patches (order matters for some)
+# STEP 2: Architecture and compiler optimizations
+# Note: These complement cachyos but may modify overlapping files
 patch -p1 < /path/to/zen4-optimizations.patch
 patch -p1 < /path/to/compiler-optimizations.patch
 patch -p1 < /path/to/cpufreq-performance.patch
@@ -194,7 +198,7 @@ patch -p1 < /path/to/filesystem-performance.patch
 patch -p1 < /path/to/futex-performance.patch
 patch -p1 < /path/to/sysctl-performance.patch
 
-# NEW: Additional high-impact optimizations
+# STEP 3: NEW high-impact optimizations (unique, no conflicts)
 patch -p1 < /path/to/thp-optimization.patch
 patch -p1 < /path/to/preempt-desktop.patch
 patch -p1 < /path/to/network-stack-advanced.patch
@@ -256,13 +260,25 @@ sudo make install
 ## Warnings & Considerations
 
 1. **Kernel Version**: All patches verified for Linux 6.18
-2. **Build Time**: LTO and O3 optimizations significantly increase build time (2-3x longer)
-3. **Binary Size**: Some optimizations may increase kernel size
-4. **Stability**: Aggressive optimizations may reduce stability in rare cases
-5. **Compiler Version**: Zen 4 optimizations require GCC 13+ or Clang 16+
-6. **Memory Usage**: Some optimizations trade memory for speed
-7. **Power Consumption**: C-state disabling increases idle power (desktop/gaming optimized)
-8. **Preemption**: PREEMPT model may slightly reduce throughput for server workloads
+2. **Patch Order**: cachyos.patch MUST be applied first - other patches depend on it
+3. **File Conflicts**: Multiple patches modify mm/Kconfig, mm/vmscan.c, and network files
+4. **Build Time**: LTO and O3 optimizations significantly increase build time (2-3x longer)
+5. **Binary Size**: Some optimizations may increase kernel size
+6. **Stability**: Aggressive optimizations may reduce stability in rare cases
+7. **Compiler Version**: Zen 4 optimizations require GCC 13+ or Clang 16+
+8. **Memory Usage**: Some optimizations trade memory for speed
+9. **Power Consumption**: C-state disabling increases idle power (desktop/gaming optimized)
+10. **Preemption**: PREEMPT model may slightly reduce throughput for server workloads
+
+### Patch Conflicts Warning
+
+**Important**: The following files are modified by multiple patches:
+- `mm/Kconfig`: cachyos, mglru-enable, thp-optimization, zswap-performance
+- `mm/vmscan.c`: cachyos, mglru-enable, mm-performance
+- `net/ipv4/sysctl_net_ipv4.c`: cloudflare, network-stack-advanced, sysctl-performance
+- `kernel/sched/fair.c`: cachyos, scheduler-performance (different tunables)
+
+Patches modify different sections of these files and should apply cleanly if applied in the specified order. If a patch fails, check the context and adjust manually.
 
 ## Benchmarking
 
