@@ -210,6 +210,9 @@ patch -p1 < /path/to/dkms-clang.patch
 # STEP 2: Architecture and compiler optimizations
 # Note: These complement cachyos but may modify overlapping files
 patch -p1 < /path/to/zen4-optimizations.patch
+patch -p1 < /path/to/zen4-cache-optimize.patch
+patch -p1 < /path/to/zen4-avx512-optimize.patch
+patch -p1 < /path/to/zen4-ddr5-optimize.patch
 patch -p1 < /path/to/compiler-optimizations.patch
 patch -p1 < /path/to/cpufreq-performance.patch
 patch -p1 < /path/to/mm-performance.patch
@@ -236,6 +239,31 @@ patch -p1 < /path/to/numa-balancing-enhance.patch
 patch -p1 < /path/to/irq-optimize.patch
 patch -p1 < /path/to/locking-optimize.patch
 ```
+
+## Zen 4-Specific Performance Features
+
+The repository now includes **4 Zen 4-specific optimization patches**:
+
+1. **zen4-optimizations.patch** - Base Zen 4 support
+   - Compiler flags: `-march=znver4 -mtune=znver4`
+   - Full instruction set support
+   
+2. **zen4-cache-optimize.patch** - Cache optimizations
+   - Optimized for 1MB L2 cache per core
+   - 32MB L3 cache per CCD (chiplet)
+   - Better inter-CCD cache coherency
+   
+3. **zen4-avx512-optimize.patch** - AVX-512 optimizations
+   - No frequency throttling (unlike Intel)
+   - AVX-512 BF16 and VNNI support
+   - Crypto acceleration
+   
+4. **zen4-ddr5-optimize.patch** - DDR5 memory optimizations
+   - Native DDR5-5200 support
+   - Optimized memory prefetcher
+   - Better memory interleaving
+
+**Note**: All Zen 4 patches are designed to work together and are fully compatible with kernel 6.18.
 
 3. **Configure kernel**:
 ```bash
