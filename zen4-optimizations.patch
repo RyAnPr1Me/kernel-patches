@@ -1,0 +1,88 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Performance Patches <patches@kernel-perf.dev>
+Date: Fri, 17 Jan 2026 05:00:00 +0000
+Subject: [PATCH] x86: Add Zen 4 specific optimizations
+
+This patch adds AMD Zen 4 (Ryzen 7000 series) specific optimizations
+including:
+- Optimized compiler flags for Zen 4 microarchitecture
+- Enhanced instruction selection
+- Better cache utilization
+- AVX-512 and AVX2 optimizations
+
+Specifically targets processors like:
+- Ryzen 9 7950X, 7900X
+- Ryzen 7 7700X
+- Ryzen 5 7600X
+- Ryzen 9 7950X3D, 7900X3D
+
+Signed-off-by: Performance Patches <patches@kernel-perf.dev>
+---
+ arch/x86/Makefile       | 25 +++++++++++++++++++++++++
+ arch/x86/Kconfig.cpu    | 15 +++++++++++++++
+ 2 files changed, 40 insertions(+)
+
+diff --git a/arch/x86/Makefile b/arch/x86/Makefile
+index 00000000..11111111 100644
+--- a/arch/x86/Makefile
++++ b/arch/x86/Makefile
+@@ -118,6 +118,31 @@ else
+         KBUILD_CFLAGS += $(call cc-option,-mskip-rax-setup)
+ endif
+ 
++ifdef CONFIG_MZEN4
++        # Zen 4 specific optimizations
++        cflags-y += -march=znver4
++        cflags-y += -mtune=znver4
++        
++        # Enable all Zen 4 instruction sets
++        cflags-y += -mavx2
++        cflags-y += -mavx512f -mavx512dq -mavx512bw -mavx512vl
++        cflags-y += -mavx512cd -mavx512vbmi -mavx512vbmi2
++        cflags-y += -mavx512vnni -mavx512bf16 -mavx512bitalg
++        cflags-y += -mavx512vpopcntdq
++        
++        # Zen 4 features
++        cflags-y += -mfma -mfma4
++        cflags-y += -mbmi -mbmi2
++        cflags-y += -maes -mpclmul
++        cflags-y += -msha -madx
++        cflags-y += -mfsgsbase
++        cflags-y += -mrdrnd -mrdseed
++        cflags-y += -mclzero -mwaitx
++        
++        # Performance optimizations
++        cflags-y += -O3
++endif
++
+ #
+ # If the function graph tracer is used with mcount instead of fentry,
+ # '-maccumulate-outgoing-args' is needed to prevent a GCC bug
+diff --git a/arch/x86/Kconfig.cpu b/arch/x86/Kconfig.cpu
+index 00000000..11111111 100644
+--- a/arch/x86/Kconfig.cpu
++++ b/arch/x86/Kconfig.cpu
+@@ -294,6 +294,21 @@ config MZEN3
+ 	  Enables -march=znver3 optimizations for AMD Zen 3 processors
+ 	  (Ryzen 5000 series).
+ 
++config MZEN4
++	bool "AMD Zen 4"
++	depends on (X86_64 || M586MMX) && X86_P6_NOP
++	help
++	  Select this for AMD Zen 4 processors:
++	  - Ryzen 7000 series (Raphael)
++	  - Ryzen 7000X3D series
++	  - EPYC Genoa/Bergamo
++	  
++	  Enables -march=znver4 optimizations and full AVX-512 support.
++	  
++	  Note: Requires GCC 13+ or Clang 16+ for full znver4 support.
++	  
++	  If you have a Ryzen 7000 series processor, say Y here.
++
+ config MELAN
+ 	bool "AMD Elan"
+ 	depends on X86_32
+-- 
+2.43.0
