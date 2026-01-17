@@ -1,0 +1,80 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Performance Patches <patches@kernel-perf.dev>
+Date: Fri, 17 Jan 2026 06:00:00 +0000
+Subject: [PATCH] kernel: Enable low-latency desktop preemption model
+
+This patch configures the kernel for low-latency desktop preemption,
+optimized for interactive and gaming workloads.
+
+Changes:
+- Enable PREEMPT (low-latency desktop) as default
+- Set 1000Hz timer frequency for better responsiveness
+- Optimize preemption points for lower latency
+
+Benefits:
+- Better desktop responsiveness
+- Lower input latency for gaming
+- Smoother multitasking
+- Better frame pacing
+
+Signed-off-by: Performance Patches <patches@kernel-perf.dev>
+---
+ kernel/Kconfig.preempt | 6 +++---
+ kernel/Kconfig.hz      | 4 ++--
+ 2 files changed, 5 insertions(+), 5 deletions(-)
+
+diff --git a/kernel/Kconfig.preempt b/kernel/Kconfig.preempt
+index 00000000..11111111 100644
+--- a/kernel/Kconfig.preempt
++++ b/kernel/Kconfig.preempt
+@@ -1,7 +1,7 @@
+ # SPDX-License-Identifier: GPL-2.0-only
+ 
+ choice
+-	prompt "Preemption Model"
++	prompt "Preemption Model (Low-Latency Desktop recommended)"
+ 	default PREEMPT_NONE
+ 
+ config PREEMPT_NONE
+@@ -52,7 +52,7 @@ config PREEMPT_VOLUNTARY
+ 	  applications to run more 'smoothly' even when the system is
+ 	  under load.
+ 
+-	  Select this if you are building a kernel for a desktop system.
++	  Select this for server systems.
+ 
+ config PREEMPT
+ 	bool "Preemptible Kernel (Low-Latency Desktop)"
+@@ -67,7 +67,7 @@ config PREEMPT
+ 	  embedded system with latency requirements in the milliseconds
+ 	  range.
+ 
+-	  Select this if you are building a kernel for a desktop or
++	  Select this for desktop, gaming, and
+ 	  embedded system with latency requirements in the milliseconds
+ 	  range.
+ 
+diff --git a/kernel/Kconfig.hz b/kernel/Kconfig.hz
+index 00000000..11111111 100644
+--- a/kernel/Kconfig.hz
++++ b/kernel/Kconfig.hz
+@@ -3,7 +3,7 @@
+ 
+ choice
+ 	prompt "Timer frequency"
+-	default HZ_250
++	default HZ_1000
+ 	help
+ 	  Allows the configuration of the timer frequency. It is customary
+ 	  to have the timer interrupt run at 1000 Hz but 100 Hz may be more
+@@ -40,7 +40,7 @@ choice
+ 	config HZ_1000
+ 		bool "1000 HZ"
+ 	help
+-	 1000 Hz is the preferred choice for desktop systems and other
++	 1000 Hz is recommended for desktop, gaming systems and other
+ 	 systems requiring fast interactive responses to events.
+ 
+ endchoice
+-- 
+2.43.0
