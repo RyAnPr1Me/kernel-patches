@@ -1,0 +1,90 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Performance Patches <patches@kernel-perf.dev>
+Date: Fri, 17 Jan 2026 05:00:00 +0000
+Subject: [PATCH] cpufreq: Optimize CPU frequency scaling for performance
+
+This patch optimizes CPU frequency scaling settings to prioritize
+performance over power savings for desktop and gaming workloads.
+
+Changes include:
+- Use performance governor by default
+- Reduce frequency transition latency
+- Optimize AMD P-State for Zen CPUs
+- Improve Intel P-State responsiveness
+
+Signed-off-by: Performance Patches <patches@kernel-perf.dev>
+---
+ drivers/cpufreq/cpufreq.c          | 4 ++--
+ drivers/cpufreq/amd-pstate.c       | 6 +++---
+ drivers/cpufreq/intel_pstate.c     | 4 ++--
+ 3 files changed, 7 insertions(+), 7 deletions(-)
+
+diff --git a/drivers/cpufreq/cpufreq.c b/drivers/cpufreq/cpufreq.c
+index 00000000..11111111 100644
+--- a/drivers/cpufreq/cpufreq.c
++++ b/drivers/cpufreq/cpufreq.c
+@@ -56,7 +56,7 @@ static LIST_HEAD(cpufreq_governor_list);
+ static DEFINE_PER_CPU(struct cpufreq_policy *, cpufreq_cpu_data);
+ static DEFINE_RWLOCK(cpufreq_driver_lock);
+ 
+-static const char *default_governor = "ondemand";
++static const char *default_governor = "performance";
+ 
+ /* Flag to suspend/resume CPUFreq governors */
+ static bool cpufreq_suspended;
+@@ -1964,7 +1964,7 @@ unsigned int cpufreq_driver_fast_switch(struct cpufreq_policy *policy,
+ }
+ EXPORT_SYMBOL_GPL(cpufreq_driver_fast_switch);
+ 
+-#define CPUFREQ_SAMPLING_INTERVAL	(HZ / 10)
++#define CPUFREQ_SAMPLING_INTERVAL	(HZ / 20)
+ 
+ static void cpufreq_policy_put_kobj(struct cpufreq_policy *policy)
+ {
+diff --git a/drivers/cpufreq/amd-pstate.c b/drivers/cpufreq/amd-pstate.c
+index 00000000..11111111 100644
+--- a/drivers/cpufreq/amd-pstate.c
++++ b/drivers/cpufreq/amd-pstate.c
+@@ -63,8 +63,8 @@
+  * enum amd_pstate_mode - driver working mode of amd_pstate
+  */
+-static int cppc_boost = true;
+-module_param(cppc_boost, int, 0444);
++static int cppc_boost = 1;
++module_param(cppc_boost, int, 0644);
+ MODULE_PARM_DESC(cppc_boost, "Enable CPPC boost");
+ 
+ /*
+@@ -728,7 +728,7 @@ static int amd_pstate_cpu_init(struct cpufreq_policy *policy)
+ 	policy->cpuinfo.transition_latency = amd_pstate_get_transition_latency(policy->cpu);
+ 	policy->transition_delay_us = amd_pstate_get_transition_delay_us(policy->cpu);
+ 
+-	policy->min = min_freq;
++	policy->min = max_freq;
+ 	policy->max = max_freq;
+ 
+ 	policy->governor = CPUFREQ_DEFAULT_GOVERNOR;
+diff --git a/drivers/cpufreq/intel_pstate.c b/drivers/cpufreq/intel_pstate.c
+index 00000000..11111111 100644
+--- a/drivers/cpufreq/intel_pstate.c
++++ b/drivers/cpufreq/intel_pstate.c
+@@ -266,7 +266,7 @@ struct pstate_funcs {
+ static struct pstate_funcs pstate_funcs __read_mostly;
+ 
+ static int hwp_active __read_mostly;
+-static int hwp_mode_bdw __read_mostly;
++static int hwp_mode_bdw __read_mostly = 1;
+ static bool per_cpu_limits __read_mostly;
+ static bool hwp_forced __read_mostly;
+ 
+@@ -2000,7 +2000,7 @@ static void intel_pstate_adjust_policy_max(struct cpufreq_policy_data *policy,
+ static void intel_pstate_verify_cpu_policy(struct cpudata *cpu,
+ 					   struct cpufreq_policy_data *policy)
+ {
+-	int max_freq;
++	int max_freq = cpu->pstate.max_pstate * cpu->pstate.scaling;
+ 
+ 	update_turbo_state();
+ 	if (hwp_active) {
+-- 
+2.43.0

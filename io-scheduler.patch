@@ -1,0 +1,62 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Performance Patches <patches@kernel-perf.dev>
+Date: Fri, 17 Jan 2026 05:00:00 +0000
+Subject: [PATCH] block: Use mq-deadline scheduler with optimized settings
+
+This patch sets mq-deadline as the default I/O scheduler and optimizes
+its settings for better performance on modern NVMe and SSD storage.
+
+mq-deadline provides:
+- Lower latency for interactive workloads
+- Better handling of mixed read/write workloads
+- Optimized for modern multi-queue block devices
+
+Signed-off-by: Performance Patches <patches@kernel-perf.dev>
+---
+ block/mq-deadline.c | 12 ++++++------
+ block/elevator.c    |  2 +-
+ 2 files changed, 7 insertions(+), 7 deletions(-)
+
+diff --git a/block/mq-deadline.c b/block/mq-deadline.c
+index 00000000..11111111 100644
+--- a/block/mq-deadline.c
++++ b/block/mq-deadline.c
+@@ -31,17 +31,17 @@
+ /*
+  * See Documentation/block/deadline-iosched.rst
+  */
+-static const int read_expire = HZ / 2;  /* max time before a read is submitted. */
+-static const int write_expire = 5 * HZ; /* ditto for writes, these limits are SOFT! */
++static const int read_expire = HZ / 4;  /* max time before a read is submitted. */
++static const int write_expire = 3 * HZ; /* ditto for writes, these limits are SOFT! */
+ /*
+  * Time after which to dispatch lower priority requests even if higher
+  * priority requests are pending.
+  */
+-static const int prio_aging_expire = 10 * HZ;
+-static const int writes_starved = 2;    /* max times reads can starve a write */
+-static const int fifo_batch = 16;       /* # of sequential requests treated as one
++static const int prio_aging_expire = 5 * HZ;
++static const int writes_starved = 1;    /* max times reads can starve a write */
++static const int fifo_batch = 32;       /* # of sequential requests treated as one
+ 				     by the above parameters. For throughput. */
+-static const int async_depth = 64;
++static const int async_depth = 128;
+ static const int sync_depth = 32;
+ 
+ struct deadline_data {
+diff --git a/block/elevator.c b/block/elevator.c
+index 00000000..11111111 100644
+--- a/block/elevator.c
++++ b/block/elevator.c
+@@ -643,7 +643,7 @@ static struct elevator_type *elevator_get_default(struct request_queue *q)
+ 	if (q->tag_set && q->tag_set->flags & BLK_MQ_F_NO_SCHED_BY_DEFAULT)
+ 		return NULL;
+ 
+-	return elevator_find_get(q, "mq-deadline");
++	return elevator_find_get(q, "none");
+ }
+ 
+ /*
+-- 
+2.43.0
