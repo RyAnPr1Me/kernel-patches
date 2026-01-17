@@ -84,6 +84,19 @@ This repository contains a collection of performance-oriented kernel patches opt
   - Reduced syscall overhead
   - Larger futex hash table
 
+### System Configuration
+- **sysctl-performance.patch** - Optimized sysctl defaults
+  - Better I/O scheduler defaults
+  - Enhanced network stack parameters
+  - Improved kernel task scheduler
+  - Gaming-friendly responsiveness
+
+- **zswap-performance.patch** - ZSWAP optimizations
+  - ZSTD compression (fast, excellent ratio)
+  - Enabled by default for better performance
+  - 50% max pool size for gaming systems
+  - Reduced swap pressure, less stuttering
+
 ## Target System
 
 ### Recommended Hardware
@@ -124,17 +137,19 @@ git checkout v6.9  # Or appropriate version
 # Core CachyOS patches first
 patch -p1 < /path/to/cachyos.patch
 
-# Then performance patches
+# Then performance patches (order matters for some)
 patch -p1 < /path/to/zen4-optimizations.patch
 patch -p1 < /path/to/compiler-optimizations.patch
 patch -p1 < /path/to/cpufreq-performance.patch
 patch -p1 < /path/to/mm-performance.patch
 patch -p1 < /path/to/mglru-enable.patch
+patch -p1 < /path/to/zswap-performance.patch
 patch -p1 < /path/to/scheduler-performance.patch
 patch -p1 < /path/to/tcp-bbr2.patch
 patch -p1 < /path/to/io-scheduler.patch
 patch -p1 < /path/to/filesystem-performance.patch
 patch -p1 < /path/to/futex-performance.patch
+patch -p1 < /path/to/sysctl-performance.patch
 ```
 
 3. **Configure kernel**:
