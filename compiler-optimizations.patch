@@ -16,8 +16,8 @@ but provide measurable performance improvements.
 
 Signed-off-by: Performance Patches <patches@kernel-perf.dev>
 ---
-Makefile           | 20 ++++++++++++++++++++
-init/Kconfig       |  2 +-
+ Makefile           | 20 ++++++++++++++++++++
+ init/Kconfig       |  2 +-
  2 files changed, 21 insertions(+), 1 deletion(-)
 
 diff --git a/Makefile b/Makefile
@@ -27,7 +27,7 @@ index 00000000..11111111 100644
 @@ -910,6 +910,26 @@ KBUILD_CFLAGS	+= -fno-delete-null-pointer-checks
  KBUILD_CFLAGS	+= $(call cc-disable-warning,frame-address,)
  KBUILD_CFLAGS	+= $(call cc-disable-warning, format-truncation)
- 
+
 +ifdef CONFIG_CC_OPTIMIZE_FOR_PERFORMANCE
 +# Additional performance optimizations beyond base -O2
 +KBUILD_CFLAGS += $(call cc-option,-O3)
@@ -53,7 +53,7 @@ index 00000000..11111111 100644
 --- a/init/Kconfig
 +++ b/init/Kconfig
 @@ -1404,7 +1404,7 @@ choice
- 
+
  config CC_OPTIMIZE_FOR_PERFORMANCE
  	bool "Optimize for performance (-O2)"
  	help
@@ -61,6 +61,6 @@ index 00000000..11111111 100644
 +	  Optimization level for maximum performance with -O3 and LTO, building
  	  with the "-O2" compiler flag for best performance and most
  	  helpful compile-time warnings.
- 
+
 -- 
 2.43.0
