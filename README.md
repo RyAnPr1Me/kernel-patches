@@ -401,9 +401,9 @@ sudo make install
 ### Critical Warnings
 
 1. **Patch Compatibility**: ✅ **ALL PATCHES ARE COMPATIBLE!**
-   - All 25 patches in this repository can be applied together with cachyos.patch
-   - Conflicting patches have been removed
-   - 6 new performance patches added (hardware/device optimizations)
+   - All 28 patches in this repository can be applied together with cachyos.patch
+   - Conflicting patches have been removed (including mglru-enable.patch)
+   - 4 NEW performance patches added (network-buffers, mm-readahead, tcp-westwood, writeback-optimize)
    - See [PATCH_CONFLICTS.md](PATCH_CONFLICTS.md) for removed patches list
 
 2. **Kernel Version**: All patches verified for Linux 6.18
