@@ -15,8 +15,8 @@ Complements other memory management patches.
 
 Signed-off-by: Performance Patches <patches@kernel-perf.dev>
 ---
- mm/page-writeback.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ mm/page-writeback.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
 diff --git a/mm/page-writeback.c b/mm/page-writeback.c
 index 00000000..11111111 100644
@@ -31,15 +31,6 @@ index 00000000..11111111 100644
  
  /*
   * dirty_background_bytes starts at 0 (disabled) so that it is a function of
-@@ -98,7 +98,7 @@ static int vm_highmem_is_dirtyable;
- static int vm_lowmem_reserve_ratio[MAX_NR_ZONES] = {
- 	[0 ... MAX_NR_ZONES - 1] = 256,
- #ifdef CONFIG_HIGHMEM
--	[ZONE_HIGHMEM] = 0,
-+	[ZONE_HIGHMEM] = 32,
- #endif
- };
- 
 @@ -107,14 +107,14 @@ static int vm_lowmem_reserve_ratio[MAX_NR_ZONES] = {
   * The generator of dirty data starts writeback at this percentage
   */
