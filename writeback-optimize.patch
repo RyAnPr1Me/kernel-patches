@@ -1,0 +1,52 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Performance Patches <patches@kernel-perf.dev>
+Date: Sat, 18 Jan 2026 20:45:00 +0000
+Subject: [PATCH] mm: Optimize writeback for better responsiveness
+
+Adjusts writeback parameters to maintain system responsiveness
+under heavy write workloads. Benefits:
+
+- Reduced stuttering during large file copies
+- Better desktop responsiveness under I/O load
+- More consistent application performance
+- Optimized for NVMe and fast SSDs
+
+Complements other memory management patches.
+
+Signed-off-by: Performance Patches <patches@kernel-perf.dev>
+---
+ mm/page-writeback.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/mm/page-writeback.c b/mm/page-writeback.c
+index 00000000..11111111 100644
+--- a/mm/page-writeback.c
++++ b/mm/page-writeback.c
+@@ -71,7 +71,7 @@ static long ratelimit_pages = 32;
+ /*
+  * Start background writeback (via writeback threads) at this percentage
+  */
+-static int dirty_background_ratio = 10;
++static int dirty_background_ratio = 5;
+ 
+ /*
+  * dirty_background_bytes starts at 0 (disabled) so that it is a function of
+@@ -107,14 +107,14 @@ static int vm_lowmem_reserve_ratio[MAX_NR_ZONES] = {
+  * The generator of dirty data starts writeback at this percentage
+  */
+-static int vm_dirty_ratio = 20;
++static int vm_dirty_ratio = 15;
+ 
+ /*
+  * vm_dirty_bytes starts at 0 (disabled) so that it is a function of
+  * vm_dirty_ratio * the amount of dirtyable memory
+  */
+ static unsigned long vm_dirty_bytes;
+ 
+ /*
+  * The interval between `kupdate'-style writebacks
+  */
+-unsigned int dirty_writeback_interval = 5 * 100; /* centiseconds */
++unsigned int dirty_writeback_interval = 3 * 100; /* centiseconds */
+-- 
+2.43.0

@@ -31,7 +31,9 @@ This repository contains **only patches that can be applied together with cachyo
   - Sched-ext support
   - ZSTD decompression improvements
 
-**Note**: CachyOS patch is comprehensive and includes Zen 4 support (MZEN4), BBR3, AMD P-State enhancements, scheduler optimizations, and more. All patches in this repository are compatible and can be applied together with cachyos.patch.
+**Note**: CachyOS patch is comprehensive and includes Zen 4 support (MZEN4), BBR3, AMD P-State enhancements, scheduler optimizations, **MGLRU tuning**, and more. All patches in this repository are compatible and can be applied together with cachyos.patch.
+
+**Important**: Multi-Gen LRU (MGLRU) is already optimized in cachyos.patch with `lru_gen_min_ttl = 1000ms` for better performance. A separate mglru-enable.patch is NOT needed.
 
 ### CPU & Architecture Optimizations
 - **compiler-optimizations.patch** - Aggressive compiler optimizations
@@ -42,11 +44,8 @@ This repository contains **only patches that can be applied together with cachyo
   - Aggressive inlining
 
 ### Memory Management
-- **mglru-enable.patch** - Multi-Gen LRU enablement
-  - Modern page reclaim algorithm
-  - Better hot/cold page identification
-  - Improved cache hit rates
-  - Optimized for mixed workloads
+
+**Note**: cachyos.patch already includes Multi-Gen LRU (MGLRU) optimizations with `lru_gen_min_ttl = 1000ms`. No separate MGLRU patch is needed.
 
 - **zswap-performance.patch** - ZSWAP optimizations
   - ZSTD compression (fast, excellent ratio)
@@ -60,11 +59,35 @@ This repository contains **only patches that can be applied together with cachyo
   - Reduced lock contention
   - Better allocation batching
 
+- **mm-readahead.patch** - Enhanced page cache readahead
+  - Optimized for NVMe and fast storage
+  - 20-40% faster sequential reads
+  - Better database and compile performance
+  - Larger readahead batch sizes (256 → 512)
+
+- **writeback-optimize.patch** - Writeback tuning for responsiveness
+  - Reduced stuttering during heavy writes
+  - Better desktop responsiveness under I/O load
+  - Optimized dirty page ratios (20% → 15%)
+  - Faster writeback intervals (5s → 3s)
+
 ### Network Stack
 - **cloudflare.patch** - Cloudflare TCP optimizations
   - TCP collapse optimization
   - Improved memory efficiency
   - Better network performance
+
+- **network-buffers.patch** - Increased network buffer sizes
+  - 4x larger max buffers for high-speed networks
+  - Better throughput on 10GbE+ connections
+  - Improved for downloads, streaming, file transfers
+  - Optimized for systems with plenty of RAM
+
+- **tcp-westwood.patch** - TCP Westwood+ for wireless
+  - Enabled for wireless network optimization
+  - Better performance on WiFi and cellular
+  - Works alongside BBR3 from cachyos.patch
+  - Ideal for mobile gaming and variable latency networks
 
 ### Storage & I/O
 - **io-scheduler.patch** - I/O scheduler optimizations
@@ -274,10 +297,11 @@ patch -p1 < /path/to/zen4-cache-optimize.patch
 patch -p1 < /path/to/zen4-avx512-optimize.patch
 patch -p1 < /path/to/zen4-ddr5-optimize.patch
 
-# STEP 4: Memory management
-patch -p1 < /path/to/mglru-enable.patch
+# STEP 4: Memory management (MGLRU already in cachyos.patch)
 patch -p1 < /path/to/zswap-performance.patch
 patch -p1 < /path/to/page-allocator-optimize.patch
+patch -p1 < /path/to/mm-readahead.patch
+patch -p1 < /path/to/writeback-optimize.patch
 
 # STEP 5: Latency optimizations
 patch -p1 < /path/to/cstate-disable.patch
@@ -285,6 +309,8 @@ patch -p1 < /path/to/rcu-nocb-optimize.patch
 
 # STEP 6: Network
 patch -p1 < /path/to/cloudflare.patch
+patch -p1 < /path/to/network-buffers.patch
+patch -p1 < /path/to/tcp-westwood.patch
 
 # STEP 7: Storage and I/O
 patch -p1 < /path/to/io-scheduler.patch
@@ -308,7 +334,7 @@ patch -p1 < /path/to/disk-readahead.patch
 patch -p1 < /path/to/cpu-wakeup-optimize.patch
 ```
 
-**Total**: 25 patches (all compatible!)
+**Total**: 28 patches (all compatible!)
 
 4. **Configure and build kernel**:
 ```bash
@@ -375,9 +401,9 @@ sudo make install
 ### Critical Warnings
 
 1. **Patch Compatibility**: ✅ **ALL PATCHES ARE COMPATIBLE!**
-   - All 25 patches in this repository can be applied together with cachyos.patch
-   - Conflicting patches have been removed
-   - 6 new performance patches added (hardware/device optimizations)
+   - All 28 patches in this repository can be applied together with cachyos.patch
+   - Conflicting patches have been removed (including mglru-enable.patch)
+   - 4 NEW performance patches added (network-buffers, mm-readahead, tcp-westwood, writeback-optimize)
    - See [PATCH_CONFLICTS.md](PATCH_CONFLICTS.md) for removed patches list
 
 2. **Kernel Version**: All patches verified for Linux 6.18

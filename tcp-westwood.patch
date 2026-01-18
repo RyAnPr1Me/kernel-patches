@@ -1,0 +1,36 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Performance Patches <patches@kernel-perf.dev>
+Date: Sat, 18 Jan 2026 20:30:00 +0000
+Subject: [PATCH] net: Enable TCP Westwood+ for wireless optimization
+
+Enables TCP Westwood+ as an available congestion control algorithm,
+which is particularly effective for:
+
+- Wireless networks (WiFi, cellular)
+- Networks with variable latency
+- Satellite connections
+- Mobile gaming and streaming
+
+Works alongside BBR3 from cachyos.patch, providing options for
+different network conditions.
+
+Signed-off-by: Performance Patches <patches@kernel-perf.dev>
+---
+ net/ipv4/Kconfig | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/net/ipv4/Kconfig b/net/ipv4/Kconfig
+index 00000000..11111111 100644
+--- a/net/ipv4/Kconfig
++++ b/net/ipv4/Kconfig
+@@ -692,7 +692,7 @@ config TCP_CONG_VENO
+ 
+ config TCP_CONG_WESTWOOD
+ 	tristate "TCP Westwood+"
+-	default n
++	default y
+ 	help
+ 	  TCP Westwood+ is a sender-side only modification of the TCP Reno
+ 	  protocol stack that optimizes the performance of TCP congestion
+-- 
+2.43.0
