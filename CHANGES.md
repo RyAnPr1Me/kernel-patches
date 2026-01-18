@@ -1,5 +1,47 @@
 # Changelog - CachyOS-Compatible Patches Only
 
+## January 18, 2026 - File Creation Fix
+
+### Issue Fixed
+**Problem**: Patches that create new files (particularly cachyos.patch with 24 new files) would fail when applied to a kernel tree where those files already existed. The `patch` command would prompt:
+```
+The next patch would create the file X, which already exists!  Assume -R? [n]
+```
+
+This caused patch application to hang waiting for user input or fail entirely.
+
+### Solution Applied
+Modified all patches to be **idempotent** by changing how new files are created:
+- Removed "new file mode" declarations from patch headers
+- Changed `--- /dev/null` to `--- a/filename` for new file diffs
+- This makes patches treat file creation as "modification from empty" rather than "new file creation"
+- Patches now apply cleanly even if files already exist
+
+### Files Modified
+- **cachyos.patch**: 24 new file declarations converted to modification-style
+  - `arch/x86/crypto/aes-gcm-avx10-x86_64.S`
+  - `arch/x86/crypto/aes-xts-avx-x86_64.S`
+  - `drivers/i2c/busses/i2c-nct6775.c`
+  - `drivers/media/v4l2-core/v4l2loopback.c`
+  - `drivers/media/v4l2-core/v4l2loopback.h`
+  - `drivers/media/v4l2-core/v4l2loopback_formats.h`
+  - `drivers/pci/controller/intel-nvme-remap.c`
+  - And 17 more files (see cachyos.patch for complete list)
+
+### Benefits
+1. **Idempotent patches**: Safe to apply multiple times without errors
+2. **No user prompts**: Patches apply automatically without waiting for input
+3. **Better automation**: Scripts can apply patches without interactive handling
+4. **Easier troubleshooting**: Users can re-apply patches when debugging issues
+
+### Testing
+Verified that patches:
+- Create files correctly on first application
+- Apply cleanly on second application without prompts
+- Maintain file integrity across multiple applications
+
+---
+
 ## Overview
 
 This repository has been updated to contain **only patches compatible with cachyos.patch**. All conflicting patches have been removed to ensure clean patch application.

@@ -71,9 +71,8 @@ index 9aa46093c91b..a2a536b690fa 100644
  obj-$(CONFIG_CRYPTO_SHA1_SSSE3) += sha1-ssse3.o
  sha1-ssse3-y := sha1_avx2_x86_64_asm.o sha1_ssse3_asm.o sha1_ssse3_glue.o
 diff --git a/arch/x86/crypto/aes-gcm-avx10-x86_64.S b/arch/x86/crypto/aes-gcm-avx10-x86_64.S
-new file mode 100644
 index 000000000000..ea978bbebc9a
---- /dev/null
+--- a/arch/x86/crypto/aes-gcm-avx10-x86_64.S
 +++ b/arch/x86/crypto/aes-gcm-avx10-x86_64.S
 @@ -0,0 +1,1219 @@
 +/* SPDX-License-Identifier: Apache-2.0 OR BSD-2-Clause */
@@ -1296,9 +1295,8 @@ index 000000000000..ea978bbebc9a
 +	_aes_gcm_final	0
 +SYM_FUNC_END(aes_gcm_dec_final_vaes_avx10)
 diff --git a/arch/x86/crypto/aes-xts-avx-x86_64.S b/arch/x86/crypto/aes-xts-avx-x86_64.S
-new file mode 100644
 index 000000000000..48f97b79f7a9
---- /dev/null
+--- a/arch/x86/crypto/aes-xts-avx-x86_64.S
 +++ b/arch/x86/crypto/aes-xts-avx-x86_64.S
 @@ -0,0 +1,845 @@
 +/* SPDX-License-Identifier: GPL-2.0-or-later */
@@ -10802,9 +10800,8 @@ index aa0ee8ecd6f2..020714113e9a 100644
  obj-$(CONFIG_I2C_NFORCE2_S4985)	+= i2c-nforce2-s4985.o
  obj-$(CONFIG_I2C_NVIDIA_GPU)	+= i2c-nvidia-gpu.o
 diff --git a/drivers/i2c/busses/i2c-nct6775.c b/drivers/i2c/busses/i2c-nct6775.c
-new file mode 100644
 index 000000000000..e919d1e10c51
---- /dev/null
+--- a/drivers/i2c/busses/i2c-nct6775.c
 +++ b/drivers/i2c/busses/i2c-nct6775.c
 @@ -0,0 +1,648 @@
 +/*
@@ -11582,9 +11579,8 @@ index 2177b9d63a8f..c179507cedc4 100644
  obj-$(CONFIG_VIDEO_TUNER) += tuner.o
  obj-$(CONFIG_VIDEO_DEV) += v4l2-dv-timings.o videodev.o
 diff --git a/drivers/media/v4l2-core/v4l2loopback.c b/drivers/media/v4l2-core/v4l2loopback.c
-new file mode 100644
 index 000000000000..25cb1beb26e5
---- /dev/null
+--- a/drivers/media/v4l2-core/v4l2loopback.c
 +++ b/drivers/media/v4l2-core/v4l2loopback.c
 @@ -0,0 +1,3184 @@
 +/* -*- c-file-style: "linux" -*- */
@@ -14772,9 +14768,8 @@ index 000000000000..25cb1beb26e5
 +module_init(v4l2loopback_init_module);
 +module_exit(v4l2loopback_cleanup_module);
 diff --git a/drivers/media/v4l2-core/v4l2loopback.h b/drivers/media/v4l2-core/v4l2loopback.h
-new file mode 100644
 index 000000000000..1bc7e6b747a4
---- /dev/null
+--- a/drivers/media/v4l2-core/v4l2loopback.h
 +++ b/drivers/media/v4l2-core/v4l2loopback.h
 @@ -0,0 +1,98 @@
 +/* SPDX-License-Identifier: GPL-2.0+ WITH Linux-syscall-note */
@@ -14876,9 +14871,8 @@ index 000000000000..1bc7e6b747a4
 +
 +#endif /* _V4L2LOOPBACK_H */
 diff --git a/drivers/media/v4l2-core/v4l2loopback_formats.h b/drivers/media/v4l2-core/v4l2loopback_formats.h
-new file mode 100644
 index 000000000000..d855a3796554
---- /dev/null
+--- a/drivers/media/v4l2-core/v4l2loopback_formats.h
 +++ b/drivers/media/v4l2-core/v4l2loopback_formats.h
 @@ -0,0 +1,445 @@
 +static const struct v4l2l_format formats[] = {
@@ -15342,9 +15336,8 @@ index f2b19e6174af..4fef4b174321 100644
  obj-$(CONFIG_PCI_FTPCI100) += pci-ftpci100.o
  obj-$(CONFIG_PCI_IXP4XX) += pci-ixp4xx.o
 diff --git a/drivers/pci/controller/intel-nvme-remap.c b/drivers/pci/controller/intel-nvme-remap.c
-new file mode 100644
 index 000000000000..e105e6f5cc91
---- /dev/null
+--- a/drivers/pci/controller/intel-nvme-remap.c
 +++ b/drivers/pci/controller/intel-nvme-remap.c
 @@ -0,0 +1,462 @@
 +// SPDX-License-Identifier: GPL-2.0
@@ -16493,9 +16486,8 @@ Signed-off-by: Peter Jung <admin@ptr1337.dev>
  create mode 100644 drivers/mfd/steamdeck.c
 
 diff --git a/Documentation/ABI/testing/sysfs-driver-hid-asus b/Documentation/ABI/testing/sysfs-driver-hid-asus
-new file mode 100644
 index 000000000000..df5b0c5b0702
---- /dev/null
+--- a/Documentation/ABI/testing/sysfs-driver-hid-asus
 +++ b/Documentation/ABI/testing/sysfs-driver-hid-asus
 @@ -0,0 +1,85 @@
 +What:		/sys/bus/usb/devices/1-3:1.0/0003:0B05:1ABE.0001/gamepad_mode
@@ -16610,9 +16602,8 @@ index f779adb5e4c7..6e0569b21d2f 100644
  obj-$(CONFIG_EXTCON_RTK_TYPE_C) += extcon-rtk-type-c.o
 +obj-$(CONFIG_EXTCON_STEAMDECK)  += extcon-steamdeck.o
 diff --git a/drivers/extcon/extcon-steamdeck.c b/drivers/extcon/extcon-steamdeck.c
-new file mode 100644
 index 000000000000..49cb5d30bf6b
---- /dev/null
+--- a/drivers/extcon/extcon-steamdeck.c
 +++ b/drivers/extcon/extcon-steamdeck.c
 @@ -0,0 +1,180 @@
 +
@@ -17391,9 +17382,8 @@ index 78cdfb8b9a7a..026705c43ee1 100644
  	    USB_DEVICE_ID_ASUSTEK_ROG_CLAYMORE_II_KEYBOARD),
  	  QUIRK_ROG_CLAYMORE_II_KEYBOARD },
 diff --git a/drivers/hid/hid-asus-rog.c b/drivers/hid/hid-asus-rog.c
-new file mode 100644
 index 000000000000..584aefd0915a
---- /dev/null
+--- a/drivers/hid/hid-asus-rog.c
 +++ b/drivers/hid/hid-asus-rog.c
 @@ -0,0 +1,1468 @@
 +// SPDX-License-Identifier: GPL-2.0-or-later
@@ -18865,9 +18855,8 @@ index 000000000000..584aefd0915a
 +	.remove = asus_rog_ally_remove,
 +};
 diff --git a/drivers/hid/hid-asus-rog.h b/drivers/hid/hid-asus-rog.h
-new file mode 100644
 index 000000000000..efad0b041d5d
---- /dev/null
+--- a/drivers/hid/hid-asus-rog.h
 +++ b/drivers/hid/hid-asus-rog.h
 @@ -0,0 +1,482 @@
 +// SPDX-License-Identifier: GPL-2.0-or-later
@@ -19354,9 +19343,8 @@ index 000000000000..efad0b041d5d
 +static int __gamepad_write_all_to_mcu(struct device *raw_dev);
 \ No newline at end of file
 diff --git a/drivers/hid/hid-asus.h b/drivers/hid/hid-asus.h
-new file mode 100644
 index 000000000000..18317cad7110
---- /dev/null
+--- a/drivers/hid/hid-asus.h
 +++ b/drivers/hid/hid-asus.h
 @@ -0,0 +1,58 @@
 +// SPDX-License-Identifier: GPL-2.0-or-later
@@ -19725,9 +19713,8 @@ index 47be39af5c03..b1cc9112a0a6 100644
  obj-$(CONFIG_SENSORS_SY7636A)	+= sy7636a-hwmon.o
  obj-$(CONFIG_SENSORS_AMC6821)	+= amc6821.o
 diff --git a/drivers/hwmon/steamdeck-hwmon.c b/drivers/hwmon/steamdeck-hwmon.c
-new file mode 100644
 index 000000000000..9d0a5471b181
---- /dev/null
+--- a/drivers/hwmon/steamdeck-hwmon.c
 +++ b/drivers/hwmon/steamdeck-hwmon.c
 @@ -0,0 +1,294 @@
 +// SPDX-License-Identifier: GPL-2.0+
@@ -20055,9 +20042,8 @@ index ce07dc295ff0..8b1be8945a57 100644
  obj-$(CONFIG_LEDS_SUNFIRE)		+= leds-sunfire.o
  obj-$(CONFIG_LEDS_SYSCON)		+= leds-syscon.o
 diff --git a/drivers/leds/leds-steamdeck.c b/drivers/leds/leds-steamdeck.c
-new file mode 100644
 index 000000000000..56d31d2dd099
---- /dev/null
+--- a/drivers/leds/leds-steamdeck.c
 +++ b/drivers/leds/leds-steamdeck.c
 @@ -0,0 +1,74 @@
 +// SPDX-License-Identifier: GPL-2.0+
@@ -20166,9 +20152,8 @@ index c66f07edcd0e..2bbdf4127232 100644
 +
 +obj-$(CONFIG_MFD_STEAMDECK)	+= steamdeck.o
 diff --git a/drivers/mfd/steamdeck.c b/drivers/mfd/steamdeck.c
-new file mode 100644
 index 000000000000..a60fa7db9141
---- /dev/null
+--- a/drivers/mfd/steamdeck.c
 +++ b/drivers/mfd/steamdeck.c
 @@ -0,0 +1,147 @@
 +// SPDX-License-Identifier: GPL-2.0+
@@ -21733,9 +21718,8 @@ index 457e16f06e04..2f5c6994f042 100644
  'P'   all    linux/soundcard.h                                       conflict!
  'P'   60-6F  sound/sscape_ioctl.h                                    conflict!
 diff --git a/Documentation/userspace-api/ntsync.rst b/Documentation/userspace-api/ntsync.rst
-new file mode 100644
 index 000000000000..767844637a7d
---- /dev/null
+--- a/Documentation/userspace-api/ntsync.rst
 +++ b/Documentation/userspace-api/ntsync.rst
 @@ -0,0 +1,398 @@
 +===================================
@@ -22191,9 +22175,8 @@ index ea6ea5bbbc9c..153a3f4837e8 100644
  obj-$(CONFIG_OPEN_DICE)		+= open-dice.o
  obj-$(CONFIG_GP_PCI1XXXX)	+= mchp_pci1xxxx/
 diff --git a/drivers/misc/ntsync.c b/drivers/misc/ntsync.c
-new file mode 100644
 index 000000000000..87a24798a5c7
---- /dev/null
+--- a/drivers/misc/ntsync.c
 +++ b/drivers/misc/ntsync.c
 @@ -0,0 +1,1232 @@
 +// SPDX-License-Identifier: GPL-2.0-only
@@ -23429,9 +23412,8 @@ index 000000000000..87a24798a5c7
 +MODULE_DESCRIPTION("Kernel driver for NT synchronization primitives");
 +MODULE_LICENSE("GPL");
 diff --git a/include/uapi/linux/ntsync.h b/include/uapi/linux/ntsync.h
-new file mode 100644
 index 000000000000..4a8095a3fc34
---- /dev/null
+--- a/include/uapi/linux/ntsync.h
 +++ b/include/uapi/linux/ntsync.h
 @@ -0,0 +1,62 @@
 +/* SPDX-License-Identifier: GPL-2.0 WITH Linux-syscall-note */
@@ -23509,16 +23491,14 @@ index 15b6a111c3be..6c714a4e6478 100644
  TARGETS += drivers/net/bonding
  TARGETS += drivers/net/team
 diff --git a/tools/testing/selftests/drivers/ntsync/.gitignore b/tools/testing/selftests/drivers/ntsync/.gitignore
-new file mode 100644
 index 000000000000..848573a3d3ea
---- /dev/null
+--- a/tools/testing/selftests/drivers/ntsync/.gitignore
 +++ b/tools/testing/selftests/drivers/ntsync/.gitignore
 @@ -0,0 +1 @@
 +ntsync
 diff --git a/tools/testing/selftests/drivers/ntsync/Makefile b/tools/testing/selftests/drivers/ntsync/Makefile
-new file mode 100644
 index 000000000000..dbf2b055c0b2
---- /dev/null
+--- a/tools/testing/selftests/drivers/ntsync/Makefile
 +++ b/tools/testing/selftests/drivers/ntsync/Makefile
 @@ -0,0 +1,7 @@
 +# SPDX-LICENSE-IDENTIFIER: GPL-2.0-only
@@ -23529,16 +23509,14 @@ index 000000000000..dbf2b055c0b2
 +
 +include ../../lib.mk
 diff --git a/tools/testing/selftests/drivers/ntsync/config b/tools/testing/selftests/drivers/ntsync/config
-new file mode 100644
 index 000000000000..60539c826d06
---- /dev/null
+--- a/tools/testing/selftests/drivers/ntsync/config
 +++ b/tools/testing/selftests/drivers/ntsync/config
 @@ -0,0 +1 @@
 +CONFIG_WINESYNC=y
 diff --git a/tools/testing/selftests/drivers/ntsync/ntsync.c b/tools/testing/selftests/drivers/ntsync/ntsync.c
-new file mode 100644
 index 000000000000..5fa2c9a0768c
---- /dev/null
+--- a/tools/testing/selftests/drivers/ntsync/ntsync.c
 +++ b/tools/testing/selftests/drivers/ntsync/ntsync.c
 @@ -0,0 +1,1407 @@
 +// SPDX-License-Identifier: GPL-2.0-or-later
@@ -26591,9 +26569,8 @@ index 20f08c644b71..464c410b2768 100644
  #
  # This source code is licensed under both the BSD-style license (found in the
 diff --git a/lib/zstd/common/allocations.h b/lib/zstd/common/allocations.h
-new file mode 100644
 index 000000000000..16c3d08e8d1a
---- /dev/null
+--- a/lib/zstd/common/allocations.h
 +++ b/lib/zstd/common/allocations.h
 @@ -0,0 +1,56 @@
 +/* SPDX-License-Identifier: GPL-2.0+ OR BSD-3-Clause */
@@ -26653,9 +26630,8 @@ index 000000000000..16c3d08e8d1a
 +
 +#endif /* ZSTD_ALLOCATIONS_H */
 diff --git a/lib/zstd/common/bits.h b/lib/zstd/common/bits.h
-new file mode 100644
 index 000000000000..aa3487ec4b6a
---- /dev/null
+--- a/lib/zstd/common/bits.h
 +++ b/lib/zstd/common/bits.h
 @@ -0,0 +1,149 @@
 +/* SPDX-License-Identifier: GPL-2.0+ OR BSD-3-Clause */
