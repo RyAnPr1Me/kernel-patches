@@ -4,7 +4,9 @@ This repository contains a collection of performance-oriented kernel patches opt
 
 ## 🔧 January 2026 Update: File Creation Fix
 
-**Fixed**: Patches that create new files have been updated to prevent "file already exists" errors. Patches are now **idempotent** and safe to re-apply without prompts or failures.
+**Fixed**: Patches that create new files have been updated to prevent "file already exists" errors. Patches now apply **without interactive prompts** even when files already exist, enabling automated patch application and easier troubleshooting.
+
+**Note**: Apply patches to a clean kernel tree. If re-applying patches, start with a fresh kernel checkout for best results.
 
 ## ✅ CachyOS-Compatible Patches Only
 
@@ -270,24 +272,48 @@ sudo pacman -S base-devel bc kmod libelf pahole cpio perl tar xz
 gcc --version  # Should be >= 13.0
 ```
 
+### Verify Patches (Recommended)
+
+Before applying patches, verify you have the correct fixed versions:
+
+```bash
+cd /path/to/kernel-patches
+
+# Option 1: Use the verification script
+./verify-patches.sh
+
+# Option 2: Manual check for problematic "new file mode" declarations
+grep -l "new file mode" *.patch
+
+# This should return NO results. If it finds any files, you have old patches.
+# Download the latest patches from this repository (January 2026 or later).
+```
+
+All patches in this repository (as of January 18, 2026) have been fixed to avoid "file already exists" errors.
+
 ### Applying Patches
 
 ✅ **ALL PATCHES ARE COMPATIBLE!** All patches in this repository can be applied together with cachyos.patch.
 
-1. **Validate patches** (optional):
+1. **Verify patches** (recommended):
 ```bash
 cd /path/to/kernel-patches
+./verify-patches.sh  # Ensures you have the fixed versions
+```
+
+2. **Validate compatibility** (optional):
+```bash
 ./validate-patches.sh --dry-run
 ```
 
-2. **Clone Linux kernel source**:
+3. **Clone Linux kernel source**:
 ```bash
 git clone https://github.com/torvalds/linux.git
 cd linux
 git checkout v6.18  # Or appropriate 6.18.x version
 ```
 
-3. **Apply ALL patches in recommended order**:
+4. **Apply ALL patches in recommended order**:
 ```bash
 # STEP 1: Core CachyOS patches (MUST be applied FIRST)
 patch -p1 < /path/to/cachyos.patch  # Includes BBR3, Zen 4 base, AMD P-State, etc.
@@ -340,7 +366,9 @@ patch -p1 < /path/to/cpu-wakeup-optimize.patch
 
 **Total**: 28 patches (all compatible!)
 
-4. **Configure and build kernel**:
+**Note**: All patches have been fixed (January 2026) to avoid "file already exists" errors. Run `./verify-patches.sh` to confirm you have the fixed versions.
+
+5. **Configure and build kernel**:
 ```bash
 # Start with existing config or CachyOS config
 make menuconfig
@@ -409,13 +437,13 @@ sudo make install
    - Conflicting patches have been removed (including mglru-enable.patch)
    - 4 NEW performance patches added (network-buffers, mm-readahead, tcp-westwood, writeback-optimize)
    - See [PATCH_CONFLICTS.md](PATCH_CONFLICTS.md) for removed patches list
-   - **Patches are idempotent**: Safe to apply multiple times (will skip if already applied)
+   - **No interactive prompts**: Patches apply without user input even when files exist
 
 2. **Kernel Version**: All patches verified for Linux 6.18
 
 3. **Patch Order**: cachyos.patch MUST be applied first, then others in recommended order
 
-4. **File Creation Handling**: Patches that create new files have been modified to avoid errors when files already exist. This makes re-applying patches safe and prevents "file already exists" errors.
+4. **File Creation Handling**: Patches that create new files have been modified to avoid interactive prompts when files already exist. For best results, apply patches to a clean kernel tree. If you need to re-apply patches, start with a fresh kernel checkout.
 
 ### Technical Considerations
 
@@ -464,8 +492,10 @@ Individual patches may have additional licensing noted in their headers.
 
 **Solution**: This should not occur with the current patches (fixed as of January 2026). If you encounter this:
 1. Ensure you're using the latest version of the patches from this repository
-2. The patches have been modified to handle existing files gracefully
-3. You can safely re-apply patches - they are idempotent
+2. The patches have been modified to handle existing files without interactive prompts
+3. Patches will apply automatically without waiting for user input
+
+**Best Practice**: Always apply patches to a clean Linux 6.18 kernel source tree for predictable results.
 
 **Problem**: Patches fail to apply
 
@@ -474,13 +504,15 @@ Individual patches may have additional licensing noted in their headers.
 2. Apply patches in the exact order listed in README.md
 3. Check that cachyos.patch is applied first
 4. Use `git status` to verify your kernel tree is clean before applying patches
+5. If patches were partially applied, start fresh with a clean kernel checkout
 
 **Problem**: Build failures after applying patches
 
 **Solutions**:
 1. Ensure you have GCC 13+ or Clang 16+ for Zen 4 optimizations
 2. Run `make clean` and try rebuilding
-3. Check that all patches applied successfully (no `.rej` files)
+3. Check that all patches applied successfully: `find . -name "*.rej"` should return nothing
+4. Verify your .config has appropriate settings for the patches applied
 
 ## Support
 
