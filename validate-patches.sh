@@ -64,10 +64,11 @@ PATCH_ORDER=(
     "zen4-avx512-optimize.patch"
     "zen4-ddr5-optimize.patch"
     
-    # Memory management
-    "mglru-enable.patch"
+    # Memory management (mglru-enable.patch REMOVED - conflicts with cachyos)
     "zswap-performance.patch"
     "page-allocator-optimize.patch"
+    "mm-readahead.patch"
+    "writeback-optimize.patch"
     
     # Latency optimizations
     "cstate-disable.patch"
@@ -75,6 +76,8 @@ PATCH_ORDER=(
     
     # Network
     "cloudflare.patch"
+    "network-buffers.patch"
+    "tcp-westwood.patch"
     
     # Storage and I/O
     "io-scheduler.patch"
@@ -89,7 +92,7 @@ PATCH_ORDER=(
     "futex-performance.patch"
     "sysctl-performance.patch"
     
-    # Hardware & device performance (NEW!)
+    # Hardware & device performance
     "pcie-performance.patch"
     "gpu-performance.patch"
     "usb-performance.patch"
@@ -106,7 +109,9 @@ echo ""
 print_success "ALL PATCHES ARE COMPATIBLE!"
 echo ""
 print_info "All ${#PATCH_ORDER[@]} patches can be applied together with cachyos.patch"
-print_info "6 NEW performance patches added (PCIe, GPU, USB, Audio, Disk, CPU wakeup)"
+print_info "mglru-enable.patch REMOVED (conflicted with cachyos MGLRU settings)"
+print_info "4 NEW patches added: network-buffers, mm-readahead, tcp-westwood, writeback-optimize"
+print_info "cachyos.patch includes comprehensive MGLRU optimizations"
 echo ""
 
 print_info "Recommended Application Order:"
