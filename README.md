@@ -279,10 +279,7 @@ Before applying patches, verify you have the correct fixed versions:
 ```bash
 cd /path/to/kernel-patches
 
-# Option 1: Use the verification script
-./verify-patches.sh
-
-# Option 2: Manual check for problematic "new file mode" declarations
+# Check for problematic "new file mode" declarations
 grep -l "new file mode" *.patch
 
 # This should return NO results. If it finds any files, you have old patches.
@@ -298,7 +295,9 @@ All patches in this repository (as of January 18, 2026) have been fixed to avoid
 1. **Verify patches** (recommended):
 ```bash
 cd /path/to/kernel-patches
-./verify-patches.sh  # Ensures you have the fixed versions
+# Check for problematic "new file mode" declarations
+grep -l "new file mode" *.patch
+# Should return NO results
 ```
 
 2. **Validate compatibility** (optional):
@@ -366,7 +365,7 @@ patch -p1 < /path/to/cpu-wakeup-optimize.patch
 
 **Total**: 28 patches (all compatible!)
 
-**Note**: All patches have been fixed (January 2026) to avoid "file already exists" errors. Run `./verify-patches.sh` to confirm you have the fixed versions.
+**Note**: All patches have been fixed (January 2026) to avoid "file already exists" errors. Verify with `grep -l "new file mode" *.patch` (should return no results).
 
 5. **Configure and build kernel**:
 ```bash
