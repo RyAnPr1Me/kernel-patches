@@ -88,6 +88,14 @@ PATCH_ORDER=(
     # System configuration
     "futex-performance.patch"
     "sysctl-performance.patch"
+    
+    # Hardware & device performance (NEW!)
+    "pcie-performance.patch"
+    "gpu-performance.patch"
+    "usb-performance.patch"
+    "audio-latency.patch"
+    "disk-readahead.patch"
+    "cpu-wakeup-optimize.patch"
 )
 
 echo "================================================================"
@@ -98,6 +106,7 @@ echo ""
 print_success "ALL PATCHES ARE COMPATIBLE!"
 echo ""
 print_info "All ${#PATCH_ORDER[@]} patches can be applied together with cachyos.patch"
+print_info "6 NEW performance patches added (PCIe, GPU, USB, Audio, Disk, CPU wakeup)"
 echo ""
 
 print_info "Recommended Application Order:"

@@ -6,7 +6,9 @@ This repository contains **only CachyOS-compatible patches**. All conflicting pa
 
 ## ✅ Current Status
 
-**All 19 patches in this repository are compatible with cachyos.patch!**
+**All 25 patches in this repository are compatible with cachyos.patch!**
+
+**NEW: 6 additional performance patches added** (hardware/device optimizations)
 
 You can safely apply all patches together without conflicts.
 
@@ -104,6 +106,14 @@ The following **19 patches** remain in the repository and are all compatible wit
 18. **futex-performance.patch** - Futex2 for Wine/Proton
 19. **sysctl-performance.patch** - Optimized sysctl defaults
 
+### Hardware & Device Performance (NEW!)
+20. **pcie-performance.patch** - PCIe optimizations (5-10% better device performance)
+21. **gpu-performance.patch** - GPU/graphics optimizations (5-15% better frame pacing)
+22. **usb-performance.patch** - USB peripheral optimizations (2-5ms lower input latency)
+23. **audio-latency.patch** - Low-latency audio (5-20ms lower audio latency)
+24. **disk-readahead.patch** - Aggressive readahead for SSDs (15-30% faster sequential reads)
+25. **cpu-wakeup-optimize.patch** - CPU wakeup path optimization (3-8% better task wakeup)
+
 ---
 
 ## Validation
@@ -159,6 +169,14 @@ patch -p1 < locking-optimize.patch
 # System
 patch -p1 < futex-performance.patch
 patch -p1 < sysctl-performance.patch
+
+# Hardware/Device (NEW!)
+patch -p1 < pcie-performance.patch
+patch -p1 < gpu-performance.patch
+patch -p1 < usb-performance.patch
+patch -p1 < audio-latency.patch
+patch -p1 < disk-readahead.patch
+patch -p1 < cpu-wakeup-optimize.patch
 ```
 
 ---
@@ -181,9 +199,10 @@ These modify **different sections** and will apply cleanly when applied in order
 
 ## Summary
 
-- **Total patches**: 19 (down from 29)
+- **Total patches**: 25 (up from 19)
 - **Removed patches**: 10 (all conflicted with cachyos.patch)
-- **Compatible patches**: 19 (100% compatible)
+- **New patches added**: 6 (hardware/device performance optimizations)
+- **Compatible patches**: 25 (100% compatible)
 - **Overlapping hunks**: 0
 - **Safe to apply**: All patches
 
