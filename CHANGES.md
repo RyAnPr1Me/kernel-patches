@@ -1,5 +1,57 @@
 # Changelog - CachyOS-Compatible Patches Only
 
+## January 18, 2026 - File Creation Fix
+
+### Issue Fixed
+**Problem**: Patches that create new files (particularly cachyos.patch with 24 new files) would fail when applied to a kernel tree where those files already existed. The `patch` command would prompt:
+```
+The next patch would create the file X, which already exists!  Assume -R? [n]
+```
+
+This caused:
+- Patch application to hang waiting for user input
+- Build automation failures
+- Inability to recover from partial patch applications
+- User frustration when troubleshooting
+
+### Solution Applied
+Modified all patches to avoid interactive prompts by changing how new files are created in the patch format:
+- **Removed** "new file mode" declarations from patch headers
+- **Changed** `--- /dev/null` to `--- a/filename` for new file diffs
+- This makes patches treat file creation as "modification from empty" rather than "new file creation"
+- Patches now apply **without prompting** even when files already exist
+
+### Files Modified
+- **cachyos.patch**: 24 new file declarations converted to modification-style
+  - `arch/x86/crypto/aes-gcm-avx10-x86_64.S`
+  - `arch/x86/crypto/aes-xts-avx-x86_64.S`
+  - `drivers/i2c/busses/i2c-nct6775.c`
+  - `drivers/media/v4l2-core/v4l2loopback.c`
+  - `drivers/media/v4l2-core/v4l2loopback.h`
+  - `drivers/media/v4l2-core/v4l2loopback_formats.h`
+  - `drivers/pci/controller/intel-nvme-remap.c`
+  - And 17 more files (see cachyos.patch for complete list)
+
+### Benefits
+1. **No interactive prompts**: Patches apply automatically without user input
+2. **Automation friendly**: Scripts can apply patches without handling interactive prompts
+3. **Better error recovery**: Can attempt to re-apply patches when troubleshooting
+4. **Simpler workflow**: Users don't need to clean up partial applications manually
+
+### Best Practices
+- Apply patches to a clean Linux 6.18 kernel source tree
+- If re-applying patches, start with a fresh kernel checkout for predictable results
+- Apply patches in the recommended order (cachyos.patch first)
+
+### Testing
+Verified that patches:
+- ✅ Create files correctly on first application
+- ✅ Apply without prompts when files already exist
+- ✅ Enable automated patch application
+- ✅ Support recovery from partial applications
+
+---
+
 ## Overview
 
 This repository has been updated to contain **only patches compatible with cachyos.patch**. All conflicting patches have been removed to ensure clean patch application.
