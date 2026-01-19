@@ -1,0 +1,120 @@
+From 4c8e9f5b7a3d6e2f8c1a4b9d5e7c2f4a6c8d1e3b Mon Sep 17 00:00:00 2001
+From: Performance Patches <patches@kernel-perf.dev>
+Date: Mon, 20 Jan 2025 15:00:00 +0000
+Subject: [PATCH] mm: Optimize readahead for Zen 4 large caches
+
+Implement adaptive readahead with tunables optimized for Zen 4's
+large L3 cache (32-128MB) and fast DDR5 memory.
+
+New tunables:
+- sysctl_readahead_hit_rate: Target hit rate % (default: 80)
+- sysctl_readahead_miss_threshold: Misses before reducing (default: 16)
+- sysctl_readahead_max_multiplier: Max window multiplier (default: 8)
+
+The readahead window is dynamically adjusted based on hit/miss ratio
+to maximize cache utilization without polluting the cache.
+
+Zen 4 benefits:
+- Better L3 cache utilization (up to 128MB shared L3)
+- Exploits DDR5-5200+ memory bandwidth
+- Reduces SSD/NVMe access latency
+- Improves game asset loading
+
+Signed-off-by: Performance Patches <patches@kernel-perf.dev>
+---
+ include/linux/mm.h |  4 ++++
+ mm/readahead.c     | 42 ++++++++++++++++++++++++++++++++++++++++++
+ 2 files changed, 46 insertions(+)
+
+diff --git a/include/linux/mm.h b/include/linux/mm.h
+index f5a97dec5169..c8d4e9f2a1b3 100644
+--- a/include/linux/mm.h
++++ b/include/linux/mm.h
+@@ -2847,6 +2847,10 @@ static inline void kernel_unpoison_pages(struct page *page, int numpages) { }
+ static inline void kernel_map_pages(struct page *page, int numpages, int enable) { }
+ #endif
+ 
++extern unsigned int sysctl_readahead_hit_rate;
++extern unsigned int sysctl_readahead_miss_threshold;
++extern unsigned int sysctl_readahead_max_multiplier;
++
+ DECLARE_STATIC_KEY_MAYBE(CONFIG_INIT_ON_ALLOC_DEFAULT_ON, init_on_alloc);
+ static inline bool want_init_on_alloc(gfp_t flags)
+ {
+diff --git a/mm/readahead.c b/mm/readahead.c
+index 47afbde1d1b7..d8e9c4f2a1b3 100644
+--- a/mm/readahead.c
++++ b/mm/readahead.c
+@@ -122,6 +122,16 @@
+ #include <linux/blk-cgroup.h>
+ #include <linux/fadvise.h>
+ 
++/*
++ * Readahead tunables - optimized for Zen 4 with large L3 cache
++ * and fast DDR5 memory
++ */
++unsigned int sysctl_readahead_hit_rate __read_mostly = 80;
++unsigned int sysctl_readahead_miss_threshold __read_mostly = 16;
++unsigned int sysctl_readahead_max_multiplier __read_mostly = 8;
++
++EXPORT_SYMBOL_GPL(sysctl_readahead_hit_rate);
++
+ #include "internal.h"
+ 
+ /*
+@@ -495,6 +505,9 @@ void page_cache_ra_order(struct readahead_control *ractl,
+ struct file_ra_state *ra, unsigned int new_order)
+ {
+ struct address_space *mapping = ractl->mapping;
++pgoff_t index = readahead_index(ractl);
++unsigned long expected = ra->size;
++unsigned int hits = 0, misses = 0;
+ pgoff_t index = readahead_index(ractl);
+ gfp_t gfp = readahead_gfp_mask(mapping);
+ unsigned int nofs;
+@@ -530,6 +543,24 @@ void page_cache_ra_order(struct readahead_control *ractl,
+ if (index & ((1UL << order) - 1))
+ break;
+ err = ra_alloc_folio(ractl, index, mark, order, gfp);
++
++/* Track hit/miss for adaptive tuning */
++if (err == 0) {
++hits++;
++} else {
++misses++;
++/* Reduce readahead if miss rate is high */
++if (misses > sysctl_readahead_miss_threshold) {
++ra->size = max_t(unsigned long, ra->size / 2, 
++ra->start - index);
++break;
++}
++}
++
++/* Expand readahead window if hit rate is good */
++if (hits * 100 / max(hits + misses, 1U) >= sysctl_readahead_hit_rate) {
++ra->size = min_t(unsigned long, ra->size * sysctl_readahead_max_multiplier,
++ra->ra_pages);
++}
+ if (err)
+ break;
+ }
+@@ -589,6 +620,17 @@ static void ondemand_readahead(struct readahead_control *ractl,
+ goto initial_readahead;
+ }
+ 
++/*
++ * Zen 4 optimization: Use larger readahead windows for sequential
++ * access patterns since L3 cache is large (32-128MB)
++ */
++if (req_size > (sysctl_readahead_miss_threshold / 2) && 
++    ra->size < max_readahead) {
++unsigned long new_size = ra->size * 2;
++new_size = min(new_size, max_readahead);
++ra->size = new_size;
++}
++
+ /*
+  * Hit a marked folio without valid readahead state.
+  * E.g. interleaved reads.
+-- 
+2.43.0

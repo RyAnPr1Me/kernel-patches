@@ -1,0 +1,41 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Performance Patches <patches@kernel-perf.dev>
+Date: Sat, 18 Jan 2026 20:00:00 +0000
+Subject: [PATCH] net: Increase network buffer sizes for better throughput
+
+Increases network buffer sizes to improve throughput on high-speed
+connections. This is particularly beneficial for:
+
+- 10GbE and faster network interfaces
+- High-bandwidth workloads (downloads, streaming)
+- Low-latency gaming with large packet sizes
+- File transfers and network storage
+
+Optimized for modern systems with plenty of RAM.
+
+Signed-off-by: Performance Patches <patches@kernel-perf.dev>
+---
+ net/core/sock.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
+
+diff --git a/net/core/sock.c b/net/core/sock.c
+index 00000000..11111111 100644
+--- a/net/core/sock.c
++++ b/net/core/sock.c
+@@ -290,10 +290,10 @@ __setup("thash_entries=", set_thash_entries);
+ static DEFINE_MUTEX(prot_inuse_lock);
+ static DEFINE_PER_CPU(struct prot_inuse, prot_inuse);
+ 
+-int sysctl_wmem_max __read_mostly = SK_WMEM_MAX;
+-int sysctl_rmem_max __read_mostly = SK_RMEM_MAX;
+-int sysctl_wmem_default __read_mostly = SK_WMEM_MAX;
+-int sysctl_rmem_default __read_mostly = SK_RMEM_MAX;
++int sysctl_wmem_max __read_mostly = SK_WMEM_MAX * 4;
++int sysctl_rmem_max __read_mostly = SK_RMEM_MAX * 4;
++int sysctl_wmem_default __read_mostly = SK_WMEM_MAX * 2;
++int sysctl_rmem_default __read_mostly = SK_RMEM_MAX * 2;
+ 
+ /* Maximal space eaten by iovec or ancillary data plus some space */
+ int sysctl_optmem_max __read_mostly = sizeof(unsigned long)*(2*UIO_MAXIOV+512);
+-- 
+2.43.0
