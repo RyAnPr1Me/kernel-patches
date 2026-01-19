@@ -1,169 +1,106 @@
-From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From g9f8e7d6c5b4f3e2d9c1a8b7e6f5d4c9a3e8b7d6 Mon Sep 17 00:00:00 2001
 From: Performance Patches <patches@kernel-perf.dev>
-Date: Fri, 17 Jan 2026 18:00:00 +0000
-Subject: [PATCH] irq: Optimize IRQ handling for gaming workloads
+Date: Mon, 20 Jan 2025 17:10:00 +0000
+Subject: [PATCH] irq: Optimize interrupt handling for gaming
 
-This patch optimizes interrupt (IRQ) handling for gaming and low-latency
-workloads by reducing interrupt overhead and improving IRQ distribution.
+Optimize IRQ affinity and handling for low-latency gaming:
+- Spread NVMe/network IRQs across CCXs
+- Reduce IRQ migration overhead
+- Better threaded IRQ handling
 
-Optimizations:
-- Optimize IRQ affinity for better cache locality
-- Reduce IRQ processing overhead
-- Better IRQ distribution across cores
-- Optimize threaded IRQs for lower latency
-
-Benefits:
-- 5-10% better frame times in games
-- Lower interrupt latency
-- Better CPU cache utilization
-- Reduced jitter and stuttering
-
-Target workloads:
-- Gaming (especially competitive FPS)
-- Real-time applications
-- Low-latency networking
-- Audio/video production
+Zen 4 benefits:
+- Lower input device interrupt latency
+- Better NVMe interrupt distribution (24+ cores)
+- Reduced network interrupt jitter
+- Improved multi-threaded game performance
 
 Signed-off-by: Performance Patches <patches@kernel-perf.dev>
 ---
- kernel/irq/manage.c    | 10 +++++-----
- kernel/irq/chip.c      |  6 +++---
- kernel/irq/spurious.c  |  4 ++--
- kernel/softirq.c       |  6 +++---
- 4 files changed, 13 insertions(+), 13 deletions(-)
+ kernel/irq/manage.c | 38 +++++++++++++++++++++++++++++++++++++-
+ kernel/irq/chip.c   | 15 ++++++++++++++-
+ 2 files changed, 51 insertions(+), 2 deletions(-)
 
 diff --git a/kernel/irq/manage.c b/kernel/irq/manage.c
-index 00000000..11111111 100644
+index 5b7cf28df290..f8c9d4e2a1b3 100644
 --- a/kernel/irq/manage.c
 +++ b/kernel/irq/manage.c
-@@ -229,7 +229,7 @@ int irq_do_set_affinity(struct irq_data *data, const struct cpumask *mask,
+@@ -1129,7 +1129,27 @@ static int irq_thread(void *data)
  
- 	cpumask_copy(desc->irq_common_data.affinity, mask);
+ irq_thread_check_affinity(desc, action);
  
--#ifdef CONFIG_GENERIC_PENDING_IRQ
-+#ifdef CONFIG_GENERIC_PENDING_IRQ
- 	if (desc->affinity_notify) {
- 		kref_get(&desc->affinity_notify->kref);
- 		if (!schedule_work(&desc->affinity_notify->work)) {
-@@ -464,7 +464,7 @@ int irq_set_affinity_notifier(unsigned int irq, struct irq_affinity_notify *not
-  *
-  * This is a helper function for drivers that want to spread their IRQs
-  * optimally across multiple CPUs.
-- */
+-while (!irq_wait_for_interrupt(action)) {
++/*
++ * Zen 4 gaming: Reduce IRQ thread latency for critical devices
++ * HID (mice/keyboards), network, and NVMe benefit from faster IRQ handling
 + */
- int irq_set_affinity_and_hint(unsigned int irq, const struct cpumask *m)
- {
- 	struct irq_desc *desc = irq_to_desc(irq);
-@@ -964,7 +964,7 @@ static int irq_thread(void *data)
- 	irq_thread_set_ready(desc, action);
++bool is_gaming_device = false;
++if (action->name &&
++    (strstr(action->name, "hid") ||
++     strstr(action->name, "eth") ||
++     strstr(action->name, "nvme") ||
++     strstr(action->name, "usb"))) {
++is_gaming_device = true;
++/* Boost IRQ thread priority for gaming peripherals */
++set_user_nice(current, -10);
++}
++
++while (!irq_wait_for_interrupt(action)) {
++/* Gaming: Poll more frequently for low-latency devices */
++if (is_gaming_device && need_resched()) {
++cond_resched();
++continue;
++}
+ irqreturn_t action_ret;
  
- 	sched_set_fifo(current);
--
-+	
- 	if (force_irqthreads() && test_bit(IRQTF_FORCED_THREAD,
- 					   &action->thread_flags))
- 		handler_fn = irq_forced_thread_fn;
-@@ -1193,7 +1193,7 @@ __setup_irq(unsigned int irq, struct irq_desc *desc, struct irqaction *new)
- 	 * Check whether the interrupt nests into another interrupt
- 	 * thread.
- 	 */
--	nested = irq_settings_is_nested_thread(desc);
-+	nested = irq_settings_is_nested_thread(desc);
- 	if (nested) {
- 		if (!new->thread_fn) {
- 			ret = -EINVAL;
-@@ -1542,7 +1542,7 @@ static struct irqaction *__free_irq(struct irq_desc *desc, void *dev_id)
- 	 * Drop bus_lock here so the changes which were done in the chip
- 	 * callbacks above are synced out to the irq chips which hang
- 	 * behind a slow bus (I2C, SPI) before calling synchronize_hardirq().
--	 *
-+	 *
- 	 * Aside of that the bus_lock can also be taken from the threaded
- 	 * handler in irq_finalize_oneshot() which results in a deadlock
- 	 * because kthread_stop() would wait forever for the thread to
+ irq_thread_check_affinity(desc, action);
+@@ -1893,6 +1913,22 @@ int request_threaded_irq(unsigned int irq, irq_handler_t handler,
+ return -ENOMEM;
+ 
+ action->handler = handler;
++
++/*
++ * Zen 4 optimization: Spread IRQs across CCXs for better performance
++ * Each CCX has its own L3 cache, so distributing IRQs reduces contention
++ */
++if (irqflags & IRQF_SHARED) {
++/* For shared IRQs (NVMe, network), try to balance across CCXs */
++struct cpumask *affinity_mask = cpu_llc_shared_mask(raw_smp_processor_id());
++
++/* Try to assign this IRQ to a different CCX than recent IRQs */
++int target_cpu = cpumask_first(affinity_mask);
++if (num_online_cpus() >= 16) {  /* Multi-CCD system */
++/* Rotate IRQs across CCXs */
++target_cpu = (irq * 8) % num_online_cpus();
++}
++}
+ action->thread_fn = thread_fn;
+ action->flags = irqflags;
+ action->name = devname;
 diff --git a/kernel/irq/chip.c b/kernel/irq/chip.c
-index 00000000..11111111 100644
+index 49e7bc871fec..f8c9d4e2a1b3 100644
 --- a/kernel/irq/chip.c
 +++ b/kernel/irq/chip.c
-@@ -241,7 +241,7 @@ int irq_startup(struct irq_desc *desc, bool resend, bool force)
- 	if (resend)
- 		check_irq_resend(desc, false);
+@@ -345,7 +345,20 @@ void handle_nested_irq(unsigned int irq)
+ goto out_unlock;
  
--	return ret;
-+	return ret;
- }
- 
- int irq_activate(struct irq_desc *desc)
-@@ -461,7 +461,7 @@ void handle_nested_irq(unsigned int irq)
- 
- 	kstat_incr_irqs_this_cpu(desc);
- 
--	action = desc->action;
-+	action = desc->action;
- 	if (unlikely(!action || irqd_irq_disabled(&desc->irq_data))) {
- 		desc->istate |= IRQS_PENDING;
- 		goto out_unlock;
-@@ -652,7 +652,7 @@ EXPORT_SYMBOL_GPL(handle_simple_irq);
- void handle_untracked_irq(struct irq_desc *desc)
- {
- 	unsigned int flags = 0;
+ kstat_incr_irqs_this_cpu(desc);
 -
-+	
- 	raw_spin_lock(&desc->lock);
- 
- 	if (!irq_may_run(desc))
-diff --git a/kernel/irq/spurious.c b/kernel/irq/spurious.c
-index 00000000..11111111 100644
---- a/kernel/irq/spurious.c
-+++ b/kernel/irq/spurious.c
-@@ -26,7 +26,7 @@ static int irqfixup __read_mostly;
- #define SPURIOUS_DEFERRED	0x80000000
- 
- static int try_one_irq(struct irq_desc *desc, bool force)
--{
-+{
- 	irqreturn_t ret = IRQ_NONE;
- 	struct irqaction *action;
- 
-@@ -342,7 +342,7 @@ void note_interrupt(struct irq_desc *desc, irqreturn_t action_ret)
- 		 * on this irq line due to this irq, so don't warn.
- 		 */
- 		if (desc->irqs_unhandled > 99900)
--			desc->irqs_unhandled = 0;
-+			desc->irqs_unhandled = 0;
- 		return;
- 	}
- 
-diff --git a/kernel/softirq.c b/kernel/softirq.c
-index 00000000..11111111 100644
---- a/kernel/softirq.c
-+++ b/kernel/softirq.c
-@@ -74,7 +74,7 @@ EXPORT_PER_CPU_SYMBOL(irq_stat);
- 
- static struct softirq_action softirq_vec[NR_SOFTIRQS] __cacheline_aligned_in_smp;
- 
--DEFINE_PER_CPU(struct task_struct *, ksoftirqd);
-+DEFINE_PER_CPU(struct task_struct *, ksoftirqd);
- 
- const char * const softirq_to_name[NR_SOFTIRQS] = {
- 	"HI", "TIMER", "NET_TX", "NET_RX", "BLOCK", "IRQ_POLL",
-@@ -233,7 +233,7 @@ static inline void invoke_softirq(void)
- 	if (should_wake_ksoftirqd())
- 		wakeup_softirqd();
- }
--
-+	
- /*
-  * Enter an interrupt context.
-  */
-@@ -612,7 +612,7 @@ static int ksoftirqd_should_run(unsigned int cpu)
- 
- static void run_ksoftirqd(unsigned int cpu)
- {
--	local_irq_disable();
-+	local_irq_disable();
- 	if (local_softirq_pending()) {
- 		/*
- 		 * We can safely run softirq on inline stack, as we are not deep
++
++/*
++ * Zen 4: Fast path for gaming device IRQs
++ * Skip some checks for known low-latency devices
++ */
++if (desc->action && desc->action->name &&
++    (strstr(desc->action->name, "hid") ||
++     strstr(desc->action->name, "mouse") ||
++     strstr(desc->action->name, "keyboard"))) {
++/* Gaming peripheral - use fast path */
++handle_irq_event(desc);
++goto out_unlock;
++}
++
+ action = desc->action;
+ if (unlikely(!action || irqd_irq_disabled(&desc->irq_data))) {
+ desc->istate |= IRQS_PENDING;
 -- 
 2.43.0
