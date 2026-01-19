@@ -86,7 +86,7 @@ index 5783a0b87517..9f2c8e3d4a7b 100644
 +
 +config ZEN4_OPTIMIZATIONS
 +	bool "AMD Zen 4 optimizations (Ryzen 7000/EPYC Genoa)"
-+	depends on X86_64 && CC_IS_GCC && GCC_VERSION >= 130000 || CC_IS_CLANG && CLANG_VERSION >= 160000
++	depends on X86_64 && (CC_IS_GCC && GCC_VERSION >= 130000 || CC_IS_CLANG && CLANG_VERSION >= 160000)
 +	help
 +	  Enable aggressive compiler optimizations for AMD Zen 4 CPUs
 +	  (Ryzen 7000 series, EPYC Genoa/Bergamo).

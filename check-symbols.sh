@@ -9,6 +9,15 @@ echo
 
 ERRORS=0
 
+# The 5 patches we're validating (from task requirements)
+PATCHES=(
+    "zen4-cache-optimize.patch"
+    "gpu-performance.patch"
+    "compiler-optimizations.patch"
+    "pcie-performance.patch"
+    "cstate-disable.patch"
+)
+
 # Known good kernel symbols
 KNOWN_MSRS=(
     "MSR_AMD_64_BU_CFG2"    # 0xC001102A - AMD BU_CFG2
@@ -29,7 +38,13 @@ KNOWN_FUNCS=(
 )
 
 # Check each patch
-for patch in zen4-cache-optimize.patch gpu-performance.patch compiler-optimizations.patch pcie-performance.patch cstate-disable.patch; do
+for patch in "${PATCHES[@]}"; do
+    if [ ! -f "$patch" ]; then
+        echo "ERROR: $patch not found!"
+        ERRORS=$((ERRORS + 1))
+        continue
+    fi
+    
     echo "Checking $patch..."
     
     # Extract added lines only
@@ -69,11 +84,13 @@ for patch in zen4-cache-optimize.patch gpu-performance.patch compiler-optimizati
 done
 
 echo "=== Patch Statistics ==="
-for patch in zen4-cache-optimize.patch gpu-performance.patch compiler-optimizations.patch pcie-performance.patch cstate-disable.patch; do
-    LINES=$(wc -l < "$patch")
-    ADDED=$(grep -c "^+" "$patch" || true)
-    REMOVED=$(grep -c "^-" "$patch" || true)
-    printf "%-30s: %3d lines (%3d added, %3d removed)\n" "$patch" "$LINES" "$ADDED" "$REMOVED"
+for patch in "${PATCHES[@]}"; do
+    if [ -f "$patch" ]; then
+        LINES=$(wc -l < "$patch")
+        ADDED=$(grep -c "^+" "$patch" || true)
+        REMOVED=$(grep -c "^-" "$patch" || true)
+        printf "%-30s: %3d lines (%3d added, %3d removed)\n" "$patch" "$LINES" "$ADDED" "$REMOVED"
+    fi
 done
 
 echo

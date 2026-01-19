@@ -38,8 +38,6 @@ index 015971adadfc..8a9c4b3e7f21 100644
  
  static void init_amd_zn(struct cpuinfo_x86 *c)
  {
-+	u64 val;
-+	
  	set_cpu_cap(c, X86_FEATURE_ZEN);
  
 +	/*
@@ -51,6 +49,7 @@ index 015971adadfc..8a9c4b3e7f21 100644
 +	    ((c->x86_model >= 0x10 && c->x86_model <= 0x1F) ||
 +	     (c->x86_model >= 0x40 && c->x86_model <= 0x4F) ||
 +	     (c->x86_model >= 0x60 && c->x86_model <= 0x7F))) {
++		u64 val;
 +		
 +		pr_info("AMD Zen 4 detected (Family %xh, Model %xh)\n", 
 +		        c->x86, c->x86_model);

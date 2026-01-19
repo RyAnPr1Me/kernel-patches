@@ -134,6 +134,7 @@ index 7e24d0800c86..8f2c9d3e7a4b 100644
 +	
  	/*
 -	 * C2 and C3 are enabled when possible, but never as the deepest
++	 * Note: When latency_mode=1, C2/C3 are made unattractive
  	 * C-state.
  	 */
 -	pr->safe_halt = 0;

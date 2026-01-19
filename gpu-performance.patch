@@ -65,12 +65,20 @@ index 4e6ad6e122bc..8f7c3d2e9a1b 100644
 +		
 +		/*
 +		 * Pin to performance cores (first CCX) if available
-+		 * On Zen 4, this keeps GPU work on CCX with lowest latency
++		 * On Zen 4, prefer cores 0-7 (first CCX) for GPU work
 +		 */
 +		if (num_online_cpus() >= 8) {
 +			cpumask_t perf_cpus;
++			/* Pin to first 8 CPUs (CCX0 on most Zen 4 systems) */
 +			cpumask_clear(&perf_cpus);
-+			cpumask_set_cpu(smp_processor_id(), &perf_cpus);
++			cpumask_set_cpu(0, &perf_cpus);
++			cpumask_set_cpu(1, &perf_cpus);
++			cpumask_set_cpu(2, &perf_cpus);
++			cpumask_set_cpu(3, &perf_cpus);
++			cpumask_set_cpu(4, &perf_cpus);
++			cpumask_set_cpu(5, &perf_cpus);
++			cpumask_set_cpu(6, &perf_cpus);
++			cpumask_set_cpu(7, &perf_cpus);
 +			set_cpus_allowed_ptr(current, &perf_cpus);
 +		}
 +	}
