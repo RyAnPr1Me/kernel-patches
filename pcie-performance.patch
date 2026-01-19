@@ -89,7 +89,7 @@ index 55bc3576a985..f3c8d9e2a7b4 100644
  			} else if (!strncmp(str, "peer2peer", 9)) {
  				pcie_bus_config = PCIE_BUS_PEER2PEER;
 -			} else if (!strncmp(str, "disable_acs_redir=", 18)) {
-+			} else if (!strncmp(str, "disable_acs_redir=", 18)) {				
++			} else if (!strncmp(str, "disable_acs_redir=", 18)) {
  				disable_acs_redir_param = str + 18;
  			} else {
  				pr_err("PCI: Unknown option `%s'\n", str);

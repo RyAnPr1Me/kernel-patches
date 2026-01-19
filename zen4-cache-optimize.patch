@@ -4,7 +4,7 @@ Date: Mon, 20 Jan 2025 18:00:00 +0000
 Subject: [PATCH] x86/amd: Zen 4 cache and prefetcher optimizations
 
 Optimize Zen 4 cache behavior for gaming and performance workloads:
-- Enable aggressive cache prefetchers using AMD MSR 0xC0011022
+- Enable aggressive cache prefetchers using AMD MSRs
 - Tune prefetch distances for DDR5 memory (5200+ MT/s)
 - Optimize L2/L3 cache line utilization (512KB L2, 32MB L3 per CCX)
 - Better branch predictor behavior via MSR tuning
@@ -96,12 +96,7 @@ index 015971adadfc..8a9c4b3e7f21 100644
 +		c->x86_cache_alignment = 64;
 +		c->x86_clflush_size = 64;
 +		
-+		/*
-+		 * Zen 4 has excellent branch prediction, set larger BTB
-+		 * This helps with complex game engine code paths
-+		 */
-+		if (c->x86_cache_alignment == 64)
-+			pr_info("Zen 4: Cache line alignment optimized (64 bytes)\n");
++		pr_info("Zen 4: Cache optimizations applied (64-byte alignment)\n");
 +	}
 +
  #ifdef CONFIG_NUMA
